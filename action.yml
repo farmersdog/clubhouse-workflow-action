@@ -1,0 +1,20 @@
+name: Clubhouse Workflow
+description: Updates and transitions the workflow state of clubhouse stories
+inputs:
+  clubhouseToken:
+    description: auth token for clubhouse api
+    required: true
+  endStateName:
+    description: name of the workflow state stories should be transisitioned to
+    required: false
+    default: Completed
+  addReleaseInfo:
+    description: update story descriptions with link to github release
+    required: false
+    default: 'false'
+outputs:
+  updatedStories:
+    description: An array of the story names that were updated
+runs:
+  using: node12
+  main: dist/index.js

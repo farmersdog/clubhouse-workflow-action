@@ -1,0 +1,5 @@
+node_modules/
+.vscode
+yarn-debug.log*
+yarn-error.log*
+releases/
