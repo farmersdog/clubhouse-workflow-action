@@ -94,7 +94,7 @@ other bugch015
                 {
                     "entity_type": "workflow-state",
                     "name": "Done",
-                    "id": 600000019
+                    "id": doneStateId
                 },
             ],
             "name": "Product"
