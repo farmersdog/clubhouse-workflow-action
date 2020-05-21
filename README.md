@@ -1,4 +1,8 @@
 
+<p align="center">
+  <a href="https://github.com/farmersdog/clubhouse-workflow-action/actions"><img alt="javscript-action status" src="https://github.com/farmersdog/clubhouse-workflow-action/workflows/unit%20tests/badge.svg"></a>
+</p>
+
 # Clubhouse Workflow Action
 
 A github action to update and transition the workflow state of clubhouse stories.
