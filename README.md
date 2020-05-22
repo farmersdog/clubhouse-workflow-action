@@ -26,7 +26,7 @@ jobs:
   update-clubhouse:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/clubhouse-workflow@v1
+    - uses: farmersdog/clubhouse-workflow@v1
       with:
         # Required.
         clubhouseToken: ${{ secrets.CLUBHOUSE_TOKEN }}
