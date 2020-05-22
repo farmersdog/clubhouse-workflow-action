@@ -1,5 +1,8 @@
 name: Clubhouse Workflow
 description: Updates and transitions the workflow state of clubhouse stories
+branding:
+  icon: chevrons-right
+  color: orange
 inputs:
   clubhouseToken:
     description: auth token for clubhouse api
