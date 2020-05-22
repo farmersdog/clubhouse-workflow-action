@@ -5,15 +5,12 @@ const ch = require('./src/clubhouse');
 
 async function run() {
   try {
-    const { body: releaseBody, html_url: releaseUrl } = github.context.payload;
+    const { body, html_url } = github.context.payload.release;
     const addReleaseInfo = (core.getInput('addReleaseInfo') === 'true');
-    const clubhouseToken = core.getInput('clubhouseToken');
-    core.setSecret(clubhouseToken);
-    process.env.CLUBHOUSE_TOKEN = clubhouseToken;
     const releasedStories = await ch.releaseStories(
-      releaseBody,
+      body,
       core.getInput('endStateName'),
-      releaseUrl,
+      html_url,
       addReleaseInfo
     );
     core.setOutput(releasedStories);

@@ -1,6 +1,6 @@
 const Clubhouse = require('clubhouse-lib');
 
-const clubhouseToken = process.env.CLUBHOUSE_TOKEN;
+const clubhouseToken = process.env.INPUT_CLUBHOUSETOKEN;
 const client = Clubhouse.create(clubhouseToken);
 
 /**

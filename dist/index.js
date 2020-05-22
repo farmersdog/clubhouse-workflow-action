@@ -1943,15 +1943,12 @@ const ch = __webpack_require__(519);
 
 async function run() {
   try {
-    const { body: releaseBody, html_url: releaseUrl } = github.context.payload;
+    const { body, html_url } = github.context.payload.release;
     const addReleaseInfo = (core.getInput('addReleaseInfo') === 'true');
-    const clubhouseToken = core.getInput('clubhouseToken');
-    core.setSecret(clubhouseToken);
-    process.env.CLUBHOUSE_TOKEN = clubhouseToken;
     const releasedStories = await ch.releaseStories(
-      releaseBody,
+      body,
       core.getInput('endStateName'),
-      releaseUrl,
+      html_url,
       addReleaseInfo
     );
     core.setOutput(releasedStories);
@@ -12336,7 +12333,7 @@ function addHook (state, kind, name, hook) {
 
 const Clubhouse = __webpack_require__(153);
 
-const clubhouseToken = process.env.CLUBHOUSE_TOKEN;
+const clubhouseToken = process.env.INPUT_CLUBHOUSETOKEN;
 const client = Clubhouse.create(clubhouseToken);
 
 /**
@@ -12518,12 +12515,16 @@ async function releaseStories(
     releaseUrl,
     shouldUpdateDescription
 ) {
+    console.log(clubhouseToken.length);
+    console.log('start extraction')
     const storyIds = extractStoryIds(releaseBody);
     if (storyIds === null) {
         console.warn('No clubhouse stories were found in the release.');
         return [];
     }
+    console.log('adding details')
     const stories = await addDetailstoStories(storyIds, releaseUrl);
+    console.log('updating desctiptions')
     const storiesWithUpdatedDescriptions = updateDescriptionsMaybe(
         stories,
         releaseUrl,
