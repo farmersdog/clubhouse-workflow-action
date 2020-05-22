@@ -12515,16 +12515,12 @@ async function releaseStories(
     releaseUrl,
     shouldUpdateDescription
 ) {
-    console.log(clubhouseToken.length);
-    console.log('start extraction')
     const storyIds = extractStoryIds(releaseBody);
     if (storyIds === null) {
         console.warn('No clubhouse stories were found in the release.');
         return [];
     }
-    console.log('adding details')
     const stories = await addDetailstoStories(storyIds, releaseUrl);
-    console.log('updating desctiptions')
     const storiesWithUpdatedDescriptions = updateDescriptionsMaybe(
         stories,
         releaseUrl,
