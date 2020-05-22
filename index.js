@@ -5,7 +5,7 @@ const ch = require('./src/clubhouse');
 
 async function run() {
   try {
-    const { body: releaseBody, html_url: releaseUrl } = github.context.event;
+    const { body: releaseBody, html_url: releaseUrl } = github.context.payload;
     const addReleaseInfo = (core.getInput('addReleaseInfo') === 'true');
     const clubhouseToken = core.getInput('clubhouseToken');
     core.setSecret(clubhouseToken);
