@@ -1,7 +1,7 @@
 const github = require('@actions/github');
 const core = require('@actions/core');
 
-const ch = require('src/clubhouse');
+const ch = require('./src/clubhouse');
 
 async function run() {
   try {
