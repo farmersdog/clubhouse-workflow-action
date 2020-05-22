@@ -10,7 +10,7 @@ async function run() {
     const clubhouseToken = core.getInput('clubhouseToken');
     core.setSecret(clubhouseToken);
     process.env.CLUBHOUSE_TOKEN = clubhouseToken;
-    const releasedStories = ch.releaseStories(
+    const releasedStories = await ch.releaseStories(
       releaseBody,
       core.getInput('endStateName'),
       releaseUrl,
