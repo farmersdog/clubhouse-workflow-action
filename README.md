@@ -26,11 +26,11 @@ jobs:
   update-clubhouse:
     runs-on: ubuntu-latest
     steps:
-    - uses: farmersdog/clubhouse-workflow@v1
+    - uses: farmersdog/clubhouse-workflow-action@v1
       with:
-        # Required.
+        # Required. Auth token to use the clubhouse api for your workspace.
         clubhouseToken: ${{ secrets.CLUBHOUSE_TOKEN }}
-        # Optional. The workflow state released stories should be in.
+        # Optional. The clubhouse workflow state released stories should be in.
         # default: 'Completed'.
         endStateName: Completed
         # Optional. Whether to update story descriptions with a link to the release.
