@@ -3,6 +3,13 @@ const sinon = require('sinon');
 
 const ch = require('../src/clubhouse');
 
+class ClientError extends Error {
+    constructor(response) {
+        super('error msg');
+        this.response = response;
+    }
+  }
+
 describe('clubhouse module', function() {
 
     const release0 = `
@@ -124,6 +131,37 @@ other bugch015
         it('should not match other strings beginning in "ch"', function () {
             const storyIds = ch.extractStoryIds(release3);
             assert.strictEqual(storyIds, expectedIds3);
+        });
+    });
+
+    describe('adding details to stories', function () {
+        afterEach(function() {
+            sinon.restore();
+        });
+        it('should return story id for 404 not found', async function () {
+            let stubbedClient = sinon.stub(ch.client, 'getStory');
+            stubbedClient.throws(function() {
+                const err = new ClientError({status: 404});
+                return err;
+            });
+            const story = await ch.addDetailstoStory('27543');
+            assert.strictEqual(story, '27543');
+        });
+
+        it('should throw for other errors', function () {
+            async function shouldThrow() {
+                await ch.addDetailstoStory('27543');
+            }
+            let stubbedClient = sinon.stub(ch.client, 'getStory');
+            stubbedClient.throws(function() {
+                const err = new ClientError({status: 500});
+                return err;
+            });
+            assert.rejects(
+                shouldThrow,
+                Error,
+                'error msg'
+            );
         });
     });
 

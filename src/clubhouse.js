@@ -23,14 +23,23 @@ function extractStoryIds(releaseBody) {
  */
 
 async function addDetailstoStory(storyId) {
-    const story = await client.getStory(storyId);
-    return {
-        // clubhouse represents all IDs as numbers
-        storyId: story.id,
-        projectId: story.project_id,
-        name: story.name,
-        description: story.description
-    };
+    try {
+        const story = await client.getStory(storyId);
+        return {
+            // clubhouse represents all IDs as numbers
+            storyId: story.id,
+            projectId: story.project_id,
+            name: story.name,
+            description: story.description
+        };
+    } catch(err) {
+        if (err.response.status === 404) {
+            console.log(`Could not locate story: ${storyId}`);
+            return storyId;
+        } else {
+            throw err;
+        }
+    }
 }
 
 /**
@@ -41,9 +50,16 @@ async function addDetailstoStory(storyId) {
  */
 
 async function addDetailstoStories(storyIds) {
-    return await Promise.all(
+    const stories = await Promise.all(
         storyIds.map(id => addDetailstoStory(id))
     );
+    return stories.filter(story => {
+        if (typeof story === 'string') {
+            return false;
+        } else {
+            return true;
+        }
+    });
 }
 
 /**
@@ -55,7 +71,7 @@ async function addDetailstoStories(storyIds) {
  */
 
 function updateDescription(story, releaseUrl) {
-    if (story.description.includes('Release Info')){
+    if (story.description.includes('Release Info')) {
         return story;
     }
     const releaseSection = `

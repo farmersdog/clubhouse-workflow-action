@@ -15,14 +15,24 @@ const help = `
 `;
 
 async function releaseStories(argv) {
-    const { release_path: releasePath, end_state: optEndState } = argv;
-    if ( releasePath === undefined ) {
+    const { release_path, end_state, add_release_info, release_url } = argv;
+    if ( release_path === undefined ) {
         throw new Error(help);
     }
-    const endState = optEndState !== undefined ? optEndState : 'Completed';
-    const releaseBody = fs.readFileSync(releasePath, {encoding: 'utf8'});
-    const storyNames = await ch.releaseStories(releaseBody, endState, '', false);
-    console.log(storyNames.join(' '));
+    if ( add_release_info !== undefined && release_url === undefined ) {
+        throw new Error('When adding release info, "release_url" must be set');
+    }
+    const endState = end_state !== undefined ? end_state : 'Completed';
+    const addReleaseInfo = add_release_info !== undefined ? true : false;
+    const releaseUrl = release_url !== undefined ? release_url : '';
+    const releaseBody = fs.readFileSync(release_path, {encoding: 'utf8'});
+    const storyNames = await ch.releaseStories(
+        releaseBody,
+        endState,
+        releaseUrl,
+        addReleaseInfo
+    );
+    console.log(`Updated Stories: \n \n${storyNames.join(' \n')}`);
 }
 
 function exit(err) {

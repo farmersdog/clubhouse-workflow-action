@@ -14,7 +14,7 @@ async function run() {
       addReleaseInfo
     );
     core.setOutput(releasedStories);
-    console.log(`Updated Stories: \n \n${releasedStories.join(' ')}`);
+    console.log(`Updated Stories: \n \n${releasedStories.join(' \n')}`);
   }
   catch (error) {
     core.setFailed(error.message);
