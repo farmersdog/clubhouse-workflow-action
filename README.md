@@ -10,7 +10,8 @@ A github action to update and transition the workflow state of clubhouse stories
 
 ## Usage
 
-Currently the action supports updating stories listed in a github release.
+Currently the action supports updating stories listed in a github release, or
+pull request title.
 
 ### Releases
 
@@ -26,16 +27,16 @@ jobs:
   update-clubhouse:
     runs-on: ubuntu-latest
     steps:
-    - uses: farmersdog/clubhouse-workflow-action@v1
-      with:
-        # Required. Auth token to use the clubhouse api for your workspace.
-        clubhouseToken: ${{ secrets.CLUBHOUSE_TOKEN }}
-        # Optional. The clubhouse workflow state released stories should be in.
-        # default: 'Completed'.
-        endStateName: Completed
-        # Optional. Whether to update story descriptions with a link to the release.
-        # default: false.
-        addReleaseInfo: false
+      - uses: farmersdog/clubhouse-workflow-action@v1
+        with:
+          # Required. Auth token to use the clubhouse api for your workspace.
+          clubhouseToken: ${{ secrets.CLUBHOUSE_TOKEN }}
+          # Optional. The clubhouse workflow state released stories should be in.
+          # default: 'Completed'.
+          endStateName: Completed
+          # Optional. Whether to update story descriptions with a link to the release.
+          # default: false.
+          addReleaseInfo: false
 ```
 
 The only requirement for identifying stories in a release is that the id is prepended with `ch`. Any surrounding brackets, or no brackets, will all work.
@@ -60,3 +61,49 @@ If `addReleaseInfo: true` is set the action will update the story with a link ba
 https://github.com/org/repo/releases/tag/v1.0.0
 ```
 The action will only add `### Release Info` to a story if it's not already present. In some case a story is released more than once it will have a link to the first release.
+
+### Pull Requests
+
+Clubhouse [natively supports](https://help.clubhouse.io/hc/en-us/articles/208139833-Configuring-The-Clubhouse-GitHub-Event-Handlers) transitioning stories when a PR is opened or merged. This action can help with the in-between cases, like if a specific label is added to the PR.
+
+```yaml
+name: Move Stories to Testing
+on:
+  pull_request:
+    types: ['labeled']
+
+jobs:
+  update-clubhouse:
+    runs-on: ubuntu-latest
+    if: github.event.label.name == 'Ready for QA'
+    steps:
+      - uses: farmersdog/clubhouse-workflow-action@v1
+        with:
+          # Required. Auth token to use the clubhouse api for your workspace.
+          clubhouseToken: ${{ secrets.CLUBHOUSE_TOKEN }}
+          # Optional. The clubhouse workflow state released stories should be in.
+          # default: 'Completed'.
+          endStateName: In Testing
+```
+
+Or alternatively, you can run the action in response to a review request.
+
+```yaml
+name: Move Stories to Testing
+on:
+  pull_request:
+    types: ['review_requested']
+
+jobs:
+  update-clubhouse:
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.requested_teams.*.name, 'QA')
+    steps:
+      - uses: farmersdog/clubhouse-workflow-action@v1
+        with:
+          # Required. Auth token to use the clubhouse api for your workspace.
+          clubhouseToken: ${{ secrets.CLUBHOUSE_TOKEN }}
+          # Optional. The clubhouse workflow state released stories should be in.
+          # default: 'Completed'.
+          endStateName: In Testing
+```

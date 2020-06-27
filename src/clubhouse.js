@@ -203,7 +203,7 @@ async function releaseStories(
         console.warn('No clubhouse stories were found in the release.');
         return [];
     }
-    const stories = await addDetailstoStories(storyIds, releaseUrl);
+    const stories = await addDetailstoStories(storyIds);
     const storiesWithUpdatedDescriptions = updateDescriptionsMaybe(
         stories,
         releaseUrl,
@@ -212,6 +212,34 @@ async function releaseStories(
     const workflows = await client.listWorkflows();
     const storiesWithEndStateIds = addEndStateIds(
         storiesWithUpdatedDescriptions,
+        workflows,
+        endStateName
+    );
+    const updatedStoryNames = await updateStories(storiesWithEndStateIds);
+    return updatedStoryNames;
+}
+
+/**
+ * Updates all clubhouse stories found in given content.
+ *
+ * @param {string} content - a string that might have clubhouse story IDs.
+ * @param {string} endStateName - Desired workflow state for stories.
+ * @return {Promise<Array>} - Names of the stories that were updated
+ */
+
+async function transitionStories(
+    content,
+    endStateName
+) {
+    const storyIds = extractStoryIds(content);
+    if (storyIds === null) {
+        console.warn('No clubhouse stories were found.');
+        return [];
+    }
+    const stories = await addDetailstoStories(storyIds);
+    const workflows = await client.listWorkflows();
+    const storiesWithEndStateIds = addEndStateIds(
+        stories,
         workflows,
         endStateName
     );
@@ -230,5 +258,6 @@ module.exports = {
     addEndStateIds,
     updateStory,
     updateStories,
-    releaseStories
+    releaseStories,
+    transitionStories
 };

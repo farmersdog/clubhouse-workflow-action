@@ -30,6 +30,7 @@ other bugch015
 `;
     const release2 = '7895 [94536] (98453) #89';
     const release3 = 'tchotchke ch-thing chi789';
+    const prTitle = 'Re-writing the app in another language [ch1919]';
     const releaseUrl = 'https://github.com/org/repo/releases/14';
     const stories = [
         {
@@ -112,15 +113,16 @@ other bugch015
         const expectedIds1 = ['4287', '890', '8576', '3', '015'];
         const expectedIds2 = null;
         const expectedIds3 = null;
+        const expectedIdsPR = ['1919'];
 
         it('should find all story ids in well formatted release', function () {
             const storyIds = ch.extractStoryIds(release0);
-            assert.deepEqual(storyIds, expectedIds0);
+            assert.deepStrictEqual(storyIds, expectedIds0);
         });
 
         it('should find all story ids in poorly formatted release', function () {
             const storyIds = ch.extractStoryIds(release1);
-            assert.deepEqual(storyIds, expectedIds1);
+            assert.deepStrictEqual(storyIds, expectedIds1);
         });
 
         it('should not match plain number strings', function () {
@@ -131,6 +133,11 @@ other bugch015
         it('should not match other strings beginning in "ch"', function () {
             const storyIds = ch.extractStoryIds(release3);
             assert.strictEqual(storyIds, expectedIds3);
+        });
+
+        it('should find 1 story id in PR Title', function () {
+            const storyIds = ch.extractStoryIds(prTitle);
+            assert.deepStrictEqual(storyIds, expectedIdsPR);
         });
     });
 
@@ -220,7 +227,7 @@ https://github.com/org/repo/releases/14
                 releaseUrl,
                 false
             );
-            assert.deepEqual(stories, newStories);
+            assert.deepStrictEqual(stories, newStories);
         });
     });
 
