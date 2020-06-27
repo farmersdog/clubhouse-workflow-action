@@ -5,9 +5,10 @@ const ch = require('./src/clubhouse');
 
 async function run() {
   try {
+    const { payload, eventName } = github.context;
     let updatedStories;
-    if (github.context.eventName === "release") {
-      const { body, html_url } = github.context.payload.release;
+    if (eventName === "release") {
+      const { body, html_url } = payload.release;
       const addReleaseInfo = (core.getInput('addReleaseInfo') === 'true');
       updatedStories = await ch.releaseStories(
         body,
@@ -15,8 +16,8 @@ async function run() {
         html_url,
         addReleaseInfo
       );
-    } else if (github.context.eventName === "pull_request") {
-      const { title } = github.context.payload.pull_request;
+    } else if (eventName === "pull_request") {
+      const { title } = payload.pull_request;
       updatedStories = await ch.transitionStories(
         title,
         core.getInput('endStateName')
