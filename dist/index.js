@@ -1955,9 +1955,11 @@ async function run() {
         addReleaseInfo
       );
     } else if (eventName === "pull_request") {
-      const { title } = payload.pull_request;
+      const { title, body } = payload.pull_request;
+      const { ref } = payload.pull_request.head;
+      const content = `${title} ${body} ${ref}`;
       updatedStories = await ch.transitionStories(
-        title,
+        content,
         core.getInput('endStateName')
       );
     } else {
@@ -12349,15 +12351,17 @@ const clubhouseToken = process.env.INPUT_CLUBHOUSETOKEN;
 const client = Clubhouse.create(clubhouseToken);
 
 /**
- * Finds all clubhouse story IDs in body of release object.
+ * Finds all clubhouse story IDs in some string content.
  *
- * @param {string} releaseBody - The body field of a github release object.
+ * @param {string} content - content that may contain story IDs.
  * @return {Array} - Clubhouse story IDs 1-7 digit strings.
  */
 
-function extractStoryIds(releaseBody) {
+function extractStoryIds(content) {
     const regex = /(?<=ch)\d{1,7}/g;
-    return releaseBody.match(regex);
+    const all = content.match(regex);
+    const unique = [...new Set(all)];
+    return unique;
 }
 
 /**
@@ -12577,9 +12581,9 @@ async function transitionStories(
     endStateName
 ) {
     const storyIds = extractStoryIds(content);
-    if (storyIds === null) {
+    if (storyIds.length === 0) {
         console.warn('No clubhouse stories were found.');
-        return [];
+        return storyIds;
     }
     const stories = await addDetailstoStories(storyIds);
     const workflows = await client.listWorkflows();
