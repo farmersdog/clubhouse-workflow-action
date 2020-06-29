@@ -1943,16 +1943,30 @@ const ch = __webpack_require__(519);
 
 async function run() {
   try {
-    const { body, html_url } = github.context.payload.release;
-    const addReleaseInfo = (core.getInput('addReleaseInfo') === 'true');
-    const releasedStories = await ch.releaseStories(
-      body,
-      core.getInput('endStateName'),
-      html_url,
-      addReleaseInfo
-    );
-    core.setOutput(releasedStories);
-    console.log(`Updated Stories: \n \n${releasedStories.join(' \n')}`);
+    const { payload, eventName } = github.context;
+    let updatedStories;
+    if (eventName === "release") {
+      const { body, html_url } = payload.release;
+      const addReleaseInfo = (core.getInput('addReleaseInfo') === 'true');
+      updatedStories = await ch.releaseStories(
+        body,
+        core.getInput('endStateName'),
+        html_url,
+        addReleaseInfo
+      );
+    } else if (eventName === "pull_request") {
+      const { title, body } = payload.pull_request;
+      const { ref } = payload.pull_request.head;
+      const content = `${title} ${body} ${ref}`;
+      updatedStories = await ch.transitionStories(
+        content,
+        core.getInput('endStateName')
+      );
+    } else {
+      throw new Error("Invalid event type");
+    }
+    core.setOutput(updatedStories);
+    console.log(`Updated Stories: \n \n${updatedStories.join(' \n')}`);
   }
   catch (error) {
     core.setFailed(error.message);
@@ -12337,15 +12351,17 @@ const clubhouseToken = process.env.INPUT_CLUBHOUSETOKEN;
 const client = Clubhouse.create(clubhouseToken);
 
 /**
- * Finds all clubhouse story IDs in body of release object.
+ * Finds all clubhouse story IDs in some string content.
  *
- * @param {string} releaseBody - The body field of a github release object.
+ * @param {string} content - content that may contain story IDs.
  * @return {Array} - Clubhouse story IDs 1-7 digit strings.
  */
 
-function extractStoryIds(releaseBody) {
+function extractStoryIds(content) {
     const regex = /(?<=ch)\d{1,7}/g;
-    return releaseBody.match(regex);
+    const all = content.match(regex);
+    const unique = [...new Set(all)];
+    return unique;
 }
 
 /**
@@ -12536,7 +12552,7 @@ async function releaseStories(
         console.warn('No clubhouse stories were found in the release.');
         return [];
     }
-    const stories = await addDetailstoStories(storyIds, releaseUrl);
+    const stories = await addDetailstoStories(storyIds);
     const storiesWithUpdatedDescriptions = updateDescriptionsMaybe(
         stories,
         releaseUrl,
@@ -12545,6 +12561,34 @@ async function releaseStories(
     const workflows = await client.listWorkflows();
     const storiesWithEndStateIds = addEndStateIds(
         storiesWithUpdatedDescriptions,
+        workflows,
+        endStateName
+    );
+    const updatedStoryNames = await updateStories(storiesWithEndStateIds);
+    return updatedStoryNames;
+}
+
+/**
+ * Updates all clubhouse stories found in given content.
+ *
+ * @param {string} content - a string that might have clubhouse story IDs.
+ * @param {string} endStateName - Desired workflow state for stories.
+ * @return {Promise<Array>} - Names of the stories that were updated
+ */
+
+async function transitionStories(
+    content,
+    endStateName
+) {
+    const storyIds = extractStoryIds(content);
+    if (storyIds.length === 0) {
+        console.warn('No clubhouse stories were found.');
+        return storyIds;
+    }
+    const stories = await addDetailstoStories(storyIds);
+    const workflows = await client.listWorkflows();
+    const storiesWithEndStateIds = addEndStateIds(
+        stories,
         workflows,
         endStateName
     );
@@ -12563,7 +12607,8 @@ module.exports = {
     addEndStateIds,
     updateStory,
     updateStories,
-    releaseStories
+    releaseStories,
+    transitionStories
 };
 
 
