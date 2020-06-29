@@ -17,9 +17,11 @@ async function run() {
         addReleaseInfo
       );
     } else if (eventName === "pull_request") {
-      const { title } = payload.pull_request;
+      const { title, body } = payload.pull_request;
+      const { ref } = payload.pull_request.head;
+      const content = `${title} ${body} ${ref}`;
       updatedStories = await ch.transitionStories(
-        title,
+        content,
         core.getInput('endStateName')
       );
     } else {

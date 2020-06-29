@@ -31,6 +31,8 @@ other bugch015
     const release2 = '7895 [94536] (98453) #89';
     const release3 = 'tchotchke ch-thing chi789';
     const prTitle = 'Re-writing the app in another language [ch1919]';
+    const branch = 'user/ch2189/something-important-maybe';
+    const duplicates = 'Only one change [ch6754] ch6754 [ch6754]';
     const releaseUrl = 'https://github.com/org/repo/releases/14';
     const stories = [
         {
@@ -111,9 +113,11 @@ other bugch015
     describe('story id extraction from release body', function () {
         const expectedIds0 = ['0002', '1', '12345', '987', '56789'];
         const expectedIds1 = ['4287', '890', '8576', '3', '015'];
-        const expectedIds2 = null;
-        const expectedIds3 = null;
+        const expectedIds2 = [];
+        const expectedIds3 = [];
         const expectedIdsPR = ['1919'];
+        const expectedIdsBranch = ['2189'];
+        const expectedIdsDups = ['6754'];
 
         it('should find all story ids in well formatted release', function () {
             const storyIds = ch.extractStoryIds(release0);
@@ -127,17 +131,27 @@ other bugch015
 
         it('should not match plain number strings', function () {
             const storyIds = ch.extractStoryIds(release2);
-            assert.strictEqual(storyIds, expectedIds2);
+            assert.deepStrictEqual(storyIds, expectedIds2);
         });
 
         it('should not match other strings beginning in "ch"', function () {
             const storyIds = ch.extractStoryIds(release3);
-            assert.strictEqual(storyIds, expectedIds3);
+            assert.deepStrictEqual(storyIds, expectedIds3);
         });
 
         it('should find 1 story id in PR Title', function () {
             const storyIds = ch.extractStoryIds(prTitle);
             assert.deepStrictEqual(storyIds, expectedIdsPR);
+        });
+
+        it('should find 1 story id in branch name', function () {
+            const storyIds = ch.extractStoryIds(branch);
+            assert.deepStrictEqual(storyIds, expectedIdsBranch);
+        });
+
+        it('should find 1 story id from duplicates', function () {
+            const storyIds = ch.extractStoryIds(duplicates);
+            assert.deepStrictEqual(storyIds, expectedIdsDups);
         });
     });
 
