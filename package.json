@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/farmersdog/clubhouse-workflow-action#readme",
   "dependencies": {
-    "@actions/core": "^1.2.5",
+    "@actions/core": "^1.2.6",
     "@actions/github": "^4.0.0",
     "clubhouse-lib": "^0.10.0"
   },
