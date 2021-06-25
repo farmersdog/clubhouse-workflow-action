@@ -39,7 +39,7 @@ jobs:
           addReleaseInfo: false
 ```
 
-The only requirement for identifying stories in a release is that the id is prepended with `ch`. Any surrounding brackets, or no brackets, will all work.
+The only requirement for identifying stories in a release is that the id is prepended with `ch` or `ch-`. Any capitalization, surrounding brackets, or no brackets, will all work.
 
 For example, if the below block is the release body the first three will be extracted, and the last one will not.
 
@@ -47,11 +47,11 @@ For example, if the below block is the release body the first three will be extr
 ### Features
 
 ch1234 Shiny New Thing
-[ch9876] Bug In Disguise
+[ch-9876] Bug In Disguise
 
 ### Bugs
 
-(ch5432) Some color was off
+(CH5432) Some color was off
 [1928]  Lost $$$$
 ```
 
