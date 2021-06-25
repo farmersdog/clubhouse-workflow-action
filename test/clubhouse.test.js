@@ -17,22 +17,28 @@ describe('clubhouse module', function() {
 [ch0002] feature 1
 [ch1] feature 2
 [ch12345] feature 3
+[ch-123456] feature 4
+[CH-42] feature 5
 
 ### Bugs
 [ch987] Bug 1
 [ch56789] Bug 2
+[ch-314] Bug 3
+[Ch2] Bug 4
 `;
     const release1 = `
 ch4287 found a bug(ch890) blah
 ch8576cool new stuff
 [ch3]other thing
 other bugch015
+someCH88foo
+Thisch-33th
 `;
     const release2 = '7895 [94536] (98453) #89';
-    const release3 = 'tchotchke ch-thing chi789';
+    const release3 = 'tchotchke ch-thing chi789 CZECHAIR CH-some2';
     const prTitle = 'Re-writing the app in another language [ch1919]';
     const branch = 'user/ch2189/something-important-maybe';
-    const duplicates = 'Only one change [ch6754] ch6754 [ch6754]';
+    const duplicates = 'Only one change [ch6754] CH6754 [ch-6754]';
     const releaseUrl = 'https://github.com/org/repo/releases/14';
     const stories = [
         {
@@ -111,8 +117,8 @@ other bugch015
         }
     ];
     describe('story id extraction from release body', function () {
-        const expectedIds0 = ['0002', '1', '12345', '987', '56789'];
-        const expectedIds1 = ['4287', '890', '8576', '3', '015'];
+        const expectedIds0 = ['0002', '1', '12345', '123456', '42', '987', '56789', '314', '2'];
+        const expectedIds1 = ['4287', '890', '8576', '3', '015', '88', '33'];
         const expectedIds2 = [];
         const expectedIds3 = [];
         const expectedIdsPR = ['1919'];
