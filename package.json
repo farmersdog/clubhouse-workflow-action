@@ -27,12 +27,12 @@
   },
   "homepage": "https://github.com/farmersdog/clubhouse-workflow-action#readme",
   "dependencies": {
-    "@actions/core": "^1.2.6",
+    "@actions/core": "^1.4.0",
     "@actions/github": "^4.0.0",
-    "clubhouse-lib": "^0.10.0"
+    "clubhouse-lib": "^0.12.0"
   },
   "devDependencies": {
-    "@zeit/ncc": "^0.22.3",
+    "@vercel/ncc": "^0.29.0",
     "eslint": "^7.9.0",
     "mocha": "^8.1.3",
     "sinon": "^9.0.3",
