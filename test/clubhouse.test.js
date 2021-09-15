@@ -140,7 +140,7 @@ Thissh-33th
             assert.deepStrictEqual(storyIds, expectedIds2);
         });
 
-        it('should not match other strings beginning in "ch"', function () {
+        it('should not match other strings beginning in "sh"', function () {
             const storyIds = ch.extractStoryIds(release3);
             assert.deepStrictEqual(storyIds, expectedIds3);
         });
