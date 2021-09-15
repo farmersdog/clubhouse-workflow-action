@@ -14,31 +14,31 @@ describe('clubhouse module', function() {
 
     const release0 = `
 ### Features
-[sh0002] feature 1
-[sh1] feature 2
-[sh12345] feature 3
-[sh-123456] feature 4
-[SH-42] feature 5
+[sc0002] feature 1
+[sc1] feature 2
+[sc12345] feature 3
+[sc-123456] feature 4
+[SC-42] feature 5
 
 ### Bugs
-[sh987] Bug 1
-[sh56789] Bug 2
-[sh-314] Bug 3
-[Sh2] Bug 4
+[sc987] Bug 1
+[sc56789] Bug 2
+[sc-314] Bug 3
+[Sc2] Bug 4
 `;
     const release1 = `
-sh4287 found a bug(sh890) blah
-sh8576cool new stuff
-[sh3]other thing
-other bugsh015
-someSH88foo
-Thissh-33th
+sc4287 found a bug(sc890) blah
+sc8576cool new stuff
+[sc3]other thing
+other bugsc015
+someSC88foo
+Thissc-33th
 `;
     const release2 = '7895 [94536] (98453) #89';
-    const release3 = 'tshotshke sh-thing shi789 CZESHAIR SH-some2';
-    const prTitle = 'Re-writing the app in another language [sh1919]';
-    const branch = 'user/sh2189/something-important-maybe';
-    const duplicates = 'Only one change [sh6754] SH6754 [sh-6754]';
+    const release3 = 'tshotscke sc-thing sci789 CZESHAIR SC-some2';
+    const prTitle = 'Re-writing the app in another language [sc1919]';
+    const branch = 'user/sc2189/something-important-maybe';
+    const duplicates = 'Only one change [sc6754] SC6754 [sc-6754]';
     const releaseUrl = 'https://github.com/org/repo/releases/14';
     const stories = [
         {
@@ -140,7 +140,7 @@ Thissh-33th
             assert.deepStrictEqual(storyIds, expectedIds2);
         });
 
-        it('should not match other strings beginning in "sh"', function () {
+        it('should not match other strings beginning in "sc"', function () {
             const storyIds = ch.extractStoryIds(release3);
             assert.deepStrictEqual(storyIds, expectedIds3);
         });
