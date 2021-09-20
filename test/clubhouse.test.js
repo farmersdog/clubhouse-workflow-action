@@ -24,7 +24,7 @@ describe('clubhouse module', function() {
 [sc987] Bug 1
 [sc56789] Bug 2
 [sc-314] Bug 3
-[Sc2] Bug 4
+[SC2] Bug 4
 `;
     const release1 = `
 sc4287 found a bug(sc890) blah
@@ -34,11 +34,39 @@ other bugsc015
 someSC88foo
 Thissc-33th
 `;
+
+     const oldFormatRelease0 = `
+### Old format features
+[ch0002] feature 1
+[ch1] feature 2
+[ch12345] feature 3
+[ch-123456] feature 4
+[CH-42] feature 5
+
+### Old format Bugs
+[ch987] Bug 1
+[ch56789] Bug 2
+[ch-314] Bug 3
+[ch2] Bug 4
+`;
+     const oldFormatRelease1 = `
+ch4287 found a bug(ch890) blah
+ch8576cool new stuff
+[ch3]other thing
+other bugch015
+someCH88foo
+Thisch-33th
+`;
+
     const release2 = '7895 [94536] (98453) #89';
     const release3 = 'tshotscke sc-thing sci789 CZESHAIR SC-some2';
+    const oldFormatRelease3 = 'tshotchke ch-thing chi789 CZESHAIR CH-some2';
     const prTitle = 'Re-writing the app in another language [sc1919]';
+    const oldFormatprTitle = 'Re-writing the app in another language [ch1919]';
     const branch = 'user/sc2189/something-important-maybe';
+    const oldFormatBranch = 'user/ch2189/something-important-maybe';
     const duplicates = 'Only one change [sc6754] SC6754 [sc-6754]';
+    const oldFormatDuplicates = 'Only one change [ch6754] CH6754 [ch-6754]';
     const releaseUrl = 'https://github.com/org/repo/releases/14';
     const stories = [
         {
@@ -160,6 +188,45 @@ Thissc-33th
             assert.deepStrictEqual(storyIds, expectedIdsDups);
         });
     });
+
+    describe('story id extraction from release body in old format', function () {
+        const expectedIds0 = ['0002', '1', '12345', '123456', '42', '987', '56789', '314', '2'];
+        const expectedIds1 = ['4287', '890', '8576', '3', '015', '88', '33'];
+        const expectedIds3 = [];
+        const expectedIdsPR = ['1919'];
+        const expectedIdsBranch = ['2189'];
+        const expectedIdsDups = ['6754'];
+
+        it('should find all story ids in well formatted release', function () {
+            const storyIds = ch.extractStoryIds(oldFormatRelease0);
+            assert.deepStrictEqual(storyIds, expectedIds0);
+        });
+
+        it('should find all story ids in poorly formatted release', function () {
+            const storyIds = ch.extractStoryIds(oldFormatRelease1);
+            assert.deepStrictEqual(storyIds, expectedIds1);
+        });
+
+        it('should not match other strings beginning in "ch"', function () {
+            const storyIds = ch.extractStoryIds(oldFormatRelease3);
+            assert.deepStrictEqual(storyIds, expectedIds3);
+        });
+
+        it('should find 1 story id in PR Title', function () {
+            const storyIds = ch.extractStoryIds(oldFormatprTitle);
+            assert.deepStrictEqual(storyIds, expectedIdsPR);
+        });
+
+        it('should find 1 story id in branch name', function () {
+            const storyIds = ch.extractStoryIds(oldFormatBranch);
+            assert.deepStrictEqual(storyIds, expectedIdsBranch);
+        });
+
+        it('should find 1 story id from duplicates', function () {
+            const storyIds = ch.extractStoryIds(oldFormatDuplicates);
+            assert.deepStrictEqual(storyIds, expectedIdsDups);
+        });
+    })
 
     describe('adding details to stories', function () {
         afterEach(function() {
