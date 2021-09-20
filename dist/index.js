@@ -12768,7 +12768,7 @@ const client = Clubhouse.create(clubhouseToken);
  */
 
 function extractStoryIds(content) {
-    const regex = /(?<=ch|ch-)\d{1,7}/gi;
+    const regex = /(?<=sc|sc-|ch|ch-)\d{1,7}/gi;
     const all = content.match(regex);
     const unique = [...new Set(all)];
     return unique;
