@@ -24,7 +24,7 @@ describe('clubhouse module', function() {
 [sc987] Bug 1
 [sc56789] Bug 2
 [sc-314] Bug 3
-[SC2] Bug 4
+[Sc2] Bug 4
 `;
     const release1 = `
 sc4287 found a bug(sc890) blah
@@ -47,7 +47,7 @@ Thissc-33th
 [ch987] Bug 1
 [ch56789] Bug 2
 [ch-314] Bug 3
-[ch2] Bug 4
+[Ch2] Bug 4
 `;
      const oldFormatRelease1 = `
 ch4287 found a bug(ch890) blah
