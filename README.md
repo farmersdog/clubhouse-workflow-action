@@ -15,7 +15,7 @@ pull request title.
 
 ### Releases
 
-While `released` is shown below, the action can be configured to run in response to any of the valid release [action types](https://developer.github.com/webhooks/event-payloads/#webhook-payload-object-34) that makes sense for your workflow.
+While `released` is shown below, the action can be configured to run in response to any of the valid release [action types](https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#release) that makes sense for your workflow.
 
 ```yaml
 name: Release Stories
