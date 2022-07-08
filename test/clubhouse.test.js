@@ -80,11 +80,25 @@ Thisch-33th
             projectId: 1010,
             name: 'terrible bug 37',
             description: ''
+        },
+        {
+            storyId: 98765,
+            projectId: 42,
+            name: 'No workflow features',
+            description: 'This is a story that has no workflow'
         }
     ];
     const completedStateId = 500000019;
     const doneStateId = 600000019;
     const workflows = [
+        {
+            "entity_type": "workflow",
+            "project_ids": [
+            ],
+            "states": [
+            ],
+            "name": "Empty workflow",
+        },
         {
             "entity_type": "workflow",
             "project_ids": [
@@ -226,7 +240,7 @@ Thisch-33th
             const storyIds = ch.extractStoryIds(oldFormatDuplicates);
             assert.deepStrictEqual(storyIds, expectedIdsDups);
         });
-    })
+    });
 
     describe('adding details to stories', function () {
         afterEach(function() {
@@ -326,6 +340,11 @@ https://github.com/org/repo/releases/14
         });
 
         it('should add expected id when end state name is not "Completed"', function () {
+            const newStory = ch.addEndStateId(stories[1], workflows, "Done");
+            assert.strictEqual(newStory.endStateId, doneStateId);
+        });
+
+        it('should not break when workflows are not empty', function () {
             const newStory = ch.addEndStateId(stories[1], workflows, "Done");
             assert.strictEqual(newStory.endStateId, doneStateId);
         });

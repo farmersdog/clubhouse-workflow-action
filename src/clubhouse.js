@@ -118,15 +118,18 @@ function updateDescriptionsMaybe(stories, releaseUrl, shouldUpdateDescription) {
  */
 
 function addEndStateId(story, workflows, endStateName) {
+    let workflowState;
     const workflow = workflows.find(
         workflow => workflow.project_ids.includes(story.projectId)
-    );
-    const workflowState = workflow.states.find(
-        state => state.name === endStateName
-    );
+    ) || null;
+    if(workflow !== null) {
+        workflowState = workflow.states.find(
+            state => state.name === endStateName
+        );
+    }
     return {
         ...story,
-        endStateId: workflowState.id
+        endStateId: (workflow === null) ? null : workflowState.id
     };
 }
 
