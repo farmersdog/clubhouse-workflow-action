@@ -19,5 +19,5 @@ outputs:
   updatedStories:
     description: An array of the story names that were updated
 runs:
-  using: node12
+  using: node16
   main: dist/index.js
