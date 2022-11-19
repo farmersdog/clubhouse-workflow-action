@@ -27,7 +27,7 @@ async function run() {
     } else {
       throw new Error("Invalid event type");
     }
-    core.setOutput(updatedStories);
+    core.setOutput('updatedStories', JSON.stringify(updatedStories));
     console.log(`Updated Stories: \n \n${updatedStories.join(' \n')}`);
   }
   catch (error) {
