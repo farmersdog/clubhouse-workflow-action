@@ -1,4 +1,4 @@
-const ShortcutClient = require('@useshortcut/client');
+const { ShortcutClient } = require('@useshortcut/client');
 
 const shortcutToken = process.env.INPUT_CLUBHOUSETOKEN;
 const client = new ShortcutClient(shortcutToken);
