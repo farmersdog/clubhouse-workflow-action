@@ -16744,7 +16744,7 @@ function extractStoryIds(content) {
 
 async function addDetailstoStory(storyId) {
     try {
-        const story = await client.getStory(storyId);
+        const { data: story } = await client.getStory(storyId);
         core.debug('\n getStory full response: \n \n' + JSON.stringify(story));
         return {
             // shortcut represents all IDs as numbers
@@ -16838,7 +16838,7 @@ function updateDescriptionsMaybe(stories, releaseUrl, shouldUpdateDescription) {
  */
 
 function addEndStateId(story, endStateName) {
-    const workflow = client.getWorkflow(story.workflowId);
+    const { data: workflow } = client.getWorkflow(story.workflowId);
     core.debug('\n full workflow response: \n \n' + JSON.stringify(workflow));
     const workflowState = workflow.states.find(
         state => state.name === endStateName
@@ -16875,7 +16875,7 @@ async function updateStory(storyWithEndStateId) {
         description: storyWithEndStateId.description,
         workflow_state_id: storyWithEndStateId.endStateId
     };
-    const updatedStory = await client.updateStory(
+    const { data: updatedStory } = await client.updateStory(
         storyWithEndStateId.storyId,
         params
     );

@@ -326,21 +326,21 @@ https://github.com/org/repo/releases/14
 
         it('should add expected id when end state name is "Completed"', function () {
             let stubbedClient = sinon.stub(ch.client, 'getWorkflow');
-            stubbedClient.returns(workflows[0]);
+            stubbedClient.returns({ data: workflows[0] });
             const newStory = ch.addEndStateId(stories[0], "Completed");
             assert.strictEqual(newStory.endStateId, completedStateId);
         });
 
         it('should add expected id when end state name is not "Completed"', function () {
             let stubbedClient = sinon.stub(ch.client, 'getWorkflow');
-            stubbedClient.returns(workflows[1]);
+            stubbedClient.returns({ data: workflows[1] });
             const newStory = ch.addEndStateId(stories[1], "Done");
             assert.strictEqual(newStory.endStateId, doneStateId);
         });
 
         it('should preserve other properties of story', function () {
             let stubbedClient = sinon.stub(ch.client, 'getWorkflow');
-            stubbedClient.returns(workflows[0]);
+            stubbedClient.returns({ data: workflows[0] });
             const newStory = ch.addEndStateId(stories[0], "Completed");
             assert(
                 'storyId' in newStory
@@ -355,7 +355,7 @@ https://github.com/org/repo/releases/14
             sinon.restore();
         });
         let stubbedClient = sinon.stub(ch.client, 'getWorkflow');
-        stubbedClient.returns(workflows[0]);
+        stubbedClient.returns({ data: workflows[0] });
         const story = stories[0];
         const storyWithEndStateId = ch.addEndStateId(
             story,
@@ -368,7 +368,7 @@ https://github.com/org/repo/releases/14
                 workflow_state_id: storyWithEndStateId.endStateId
             };
             let stubbedClient = sinon.stub(ch.client, 'updateStory');
-            stubbedClient.returns(returnedStory);
+            stubbedClient.returns({ data: returnedStory });
             const name = await ch.updateStory(storyWithEndStateId);
             assert(
                 stubbedClient.calledOnceWith(storyWithEndStateId.storyId)
@@ -385,7 +385,7 @@ https://github.com/org/repo/releases/14
                 workflow_state_id: storyWithEndStateId.endStateId - 10
             };
             let stubbedClient = sinon.stub(ch.client, 'updateStory');
-            stubbedClient.returns(returnedStory);
+            stubbedClient.returns({ data: returnedStory });
             assert.rejects(
                 shouldThrow,
                 Error,
