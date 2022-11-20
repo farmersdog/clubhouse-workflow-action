@@ -8,9 +8,9 @@ class ClientError extends Error {
         super('error msg');
         this.response = response;
     }
-  }
+}
 
-describe('clubhouse module', function() {
+describe('clubhouse module', function () {
 
     const release0 = `
 ### Features
@@ -35,7 +35,7 @@ someSC88foo
 Thissc-33th
 `;
 
-     const oldFormatRelease0 = `
+    const oldFormatRelease0 = `
 ### Old format features
 [ch0002] feature 1
 [ch1] feature 2
@@ -49,7 +49,7 @@ Thissc-33th
 [ch-314] Bug 3
 [Ch2] Bug 4
 `;
-     const oldFormatRelease1 = `
+    const oldFormatRelease1 = `
 ch4287 found a bug(ch890) blah
 ch8576cool new stuff
 [ch3]other thing
@@ -226,16 +226,16 @@ Thisch-33th
             const storyIds = ch.extractStoryIds(oldFormatDuplicates);
             assert.deepStrictEqual(storyIds, expectedIdsDups);
         });
-    })
+    });
 
     describe('adding details to stories', function () {
-        afterEach(function() {
+        afterEach(function () {
             sinon.restore();
         });
         it('should return story id for 404 not found', async function () {
             let stubbedClient = sinon.stub(ch.client, 'getStory');
-            stubbedClient.throws(function() {
-                const err = new ClientError({status: 404});
+            stubbedClient.throws(function () {
+                const err = new ClientError({ status: 404 });
                 return err;
             });
             const story = await ch.addDetailstoStory('27543');
@@ -247,8 +247,8 @@ Thisch-33th
                 await ch.addDetailstoStory('27543');
             }
             let stubbedClient = sinon.stub(ch.client, 'getStory');
-            stubbedClient.throws(function() {
-                const err = new ClientError({status: 500});
+            stubbedClient.throws(function () {
+                const err = new ClientError({ status: 500 });
                 return err;
             });
             assert.rejects(
@@ -281,7 +281,7 @@ https://github.com/org/repo/releases/14
         });
 
         it('should not update a description that has release info', function () {
-            const story = {description: expectedDescription1};
+            const story = { description: expectedDescription1 };
             const newStory = ch.updateDescription(story, releaseUrl);
             assert.strictEqual(newStory.description, expectedDescription1);
         });
@@ -342,7 +342,7 @@ https://github.com/org/repo/releases/14
     });
 
     describe("Updating stories with the clubhouse api", function () {
-        afterEach(function() {
+        afterEach(function () {
             sinon.restore();
         });
         const story = stories[0];
