@@ -16,4 +16,4 @@ jobs:
       - uses: ./action
         with:
           clubhouseToken: ${{ secrets.CLUBHOUSE_TOKEN }}
-          endStateName: mock
+          endStateName: 'In Review'
