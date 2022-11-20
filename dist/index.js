@@ -16716,6 +16716,7 @@ function wrappy (fn, cb) {
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const { ShortcutClient } = __nccwpck_require__(5914);
+const core = __nccwpck_require__(2186);
 
 const shortcutToken = process.env.INPUT_CLUBHOUSETOKEN;
 const client = new ShortcutClient(shortcutToken);
@@ -16744,6 +16745,7 @@ function extractStoryIds(content) {
 async function addDetailstoStory(storyId) {
     try {
         const story = await client.getStory(storyId);
+        core.debug(JSON.stringify(story));
         return {
             // shortcut represents all IDs as numbers
             storyId: story.id,
