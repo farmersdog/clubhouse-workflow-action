@@ -28,7 +28,7 @@ function extractStoryIds(content) {
 async function addDetailstoStory(storyId) {
     try {
         const story = await client.getStory(storyId);
-        core.debug(JSON.stringify(story));
+        core.debug('\n getStory full response: \n \n' + JSON.stringify(story));
         return {
             // shortcut represents all IDs as numbers
             storyId: story.id,
@@ -38,6 +38,7 @@ async function addDetailstoStory(storyId) {
             workflowStateId: story.workflow_state_id
         };
     } catch (err) {
+        core.debug('\n getStory full error: \n \n' + JSON.stringify(err));
         if (err.response.status === 404) {
             console.log(`Could not locate story: ${storyId}`);
             return storyId;
@@ -121,6 +122,7 @@ function updateDescriptionsMaybe(stories, releaseUrl, shouldUpdateDescription) {
 
 function addEndStateId(story, endStateName) {
     const workflow = client.getWorkflow(story.workflowId);
+    core.debug('\n full workflow response: \n \n' + JSON.stringify(workflow));
     const workflowState = workflow.states.find(
         state => state.name === endStateName
     );
@@ -231,6 +233,7 @@ async function transitionStories(
     endStateName
 ) {
     const storyIds = extractStoryIds(content);
+    core.debug('\n story ids found: \n \n' + JSON.stringify(storyIds));
     if (storyIds.length === 0) {
         console.warn('No shortcut stories were found.');
         return storyIds;
