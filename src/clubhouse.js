@@ -27,13 +27,14 @@ function extractStoryIds(content) {
 async function addDetailstoStory(storyId) {
     try {
         const story = await client.getStory(storyId);
-        return {
+        composePaginateRest.
+            return {
             // shortcut represents all IDs as numbers
             storyId: story.id,
-            name: story.name,
-            description: story.description,
-            workflowId: story.workflow_id,
-            workflowStateId: story.workflow_state_id
+                name: story.name,
+                    description: story.description,
+                        workflowId: story.workflow_id,
+                            workflowStateId: story.workflow_state_id
         };
     } catch (err) {
         if (err.response.status === 404) {
