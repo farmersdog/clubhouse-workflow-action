@@ -71,15 +71,15 @@ Thisch-33th
     const stories = [
         {
             storyId: 1234,
-            projectId: 987,
             name: 'cool feature 19',
-            description: 'the customers really want this thing, product is certain'
+            description: 'the customers really want this thing, product is certain',
+            workflowId: 437
         },
         {
             storyId: 5678,
-            projectId: 1010,
             name: 'terrible bug 37',
-            description: ''
+            description: '',
+            workflowId: 89
         }
     ];
     const completedStateId = 500000019;
@@ -87,6 +87,7 @@ Thisch-33th
     const workflows = [
         {
             "entity_type": "workflow",
+            "id": 437,
             "project_ids": [
                 2612,
                 247,
@@ -119,6 +120,7 @@ Thisch-33th
         },
         {
             "entity_type": "workflow",
+            "id": 89,
             "project_ids": [
                 487,
                 40,
@@ -291,7 +293,6 @@ https://github.com/org/repo/releases/14
             const newStory = ch.updateDescription(stories[0], releaseUrl);
             assert(
                 'storyId' in newStory
-                && 'projectId' in newStory
                 && 'name' in newStory
             );
         });
@@ -319,22 +320,30 @@ https://github.com/org/repo/releases/14
     });
 
     describe('Adding the end workflow state id to stories', function () {
+        afterEach(function () {
+            sinon.restore();
+        });
 
         it('should add expected id when end state name is "Completed"', function () {
-            const newStory = ch.addEndStateId(stories[0], workflows, "Completed");
+            let stubbedClient = sinon.stub(ch.client, 'getWorkflow');
+            stubbedClient.returns(workflows[0]);
+            const newStory = ch.addEndStateId(stories[0], "Completed");
             assert.strictEqual(newStory.endStateId, completedStateId);
         });
 
         it('should add expected id when end state name is not "Completed"', function () {
-            const newStory = ch.addEndStateId(stories[1], workflows, "Done");
+            let stubbedClient = sinon.stub(ch.client, 'getWorkflow');
+            stubbedClient.returns(workflows[1]);
+            const newStory = ch.addEndStateId(stories[1], "Done");
             assert.strictEqual(newStory.endStateId, doneStateId);
         });
 
         it('should preserve other properties of story', function () {
-            const newStory = ch.addEndStateId(stories[0], workflows, "Completed");
+            let stubbedClient = sinon.stub(ch.client, 'getWorkflow');
+            stubbedClient.returns(workflows[0]);
+            const newStory = ch.addEndStateId(stories[0], "Completed");
             assert(
                 'storyId' in newStory
-                && 'projectId' in newStory
                 && 'name' in newStory
                 && 'description' in newStory
             );
@@ -345,10 +354,11 @@ https://github.com/org/repo/releases/14
         afterEach(function () {
             sinon.restore();
         });
+        let stubbedClient = sinon.stub(ch.client, 'getWorkflow');
+        stubbedClient.returns(workflows[0]);
         const story = stories[0];
         const storyWithEndStateId = ch.addEndStateId(
             story,
-            [workflows[0]],
             "Completed"
         );
 

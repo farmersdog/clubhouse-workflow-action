@@ -32,8 +32,8 @@ async function addDetailstoStory(storyId) {
             storyId: story.id,
             name: story.name,
             description: story.description,
-            workflow_id: story.workflow_id,
-            workflow_state_id: story.workflow_state_id
+            workflowId: story.workflow_id,
+            workflowStateId: story.workflow_state_id
         };
     } catch (err) {
         if (err.response.status === 404) {
@@ -112,14 +112,13 @@ function updateDescriptionsMaybe(stories, releaseUrl, shouldUpdateDescription) {
  * Creates a new story object with added workflow state id for desired end state.
  *
  * @param {Object} story - shortcut story object.
- * @param {Array} workflows - shortcut workflow objects.
  * @param {string} endStateName - Name of the workflow state to tranisition
  *                 stories to.
  * @return {Object} - shortcut story object with ID of desired workflow end state.
  */
 
 function addEndStateId(story, endStateName) {
-    const workflow = client.getWorkflow(story.workflow_id);
+    const workflow = client.getWorkflow(story.workflowId);
     const workflowState = workflow.states.find(
         state => state.name === endStateName
     );
@@ -134,7 +133,6 @@ function addEndStateId(story, endStateName) {
  * end state.
  *
  * @param {Array} stories - shortcut story objects.
- * @param {Array} workflows - shortcut workflow objects.
  * @param {string} endStateName - Name of the workflow state to tranisition stories to.
  * @return {Object} - shortcut story object with ID of desired workflow end state.
  */
