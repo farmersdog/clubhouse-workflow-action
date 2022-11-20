@@ -202,6 +202,7 @@ async function releaseStories(
     shouldUpdateDescription
 ) {
     const storyIds = extractStoryIds(releaseBody);
+    core.debug('\n story ids found: \n \n' + JSON.stringify(storyIds));
     if (storyIds === null) {
         console.warn('No shortcut stories were found in the release.');
         return [];
