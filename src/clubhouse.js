@@ -1,4 +1,5 @@
 const { ShortcutClient } = require('@useshortcut/client');
+const core = require('@actions/core');
 
 const shortcutToken = process.env.INPUT_CLUBHOUSETOKEN;
 const client = new ShortcutClient(shortcutToken);
@@ -27,14 +28,14 @@ function extractStoryIds(content) {
 async function addDetailstoStory(storyId) {
     try {
         const story = await client.getStory(storyId);
-        composePaginateRest.
-            return {
+        core.debug(JSON.stringify(story));
+        return {
             // shortcut represents all IDs as numbers
             storyId: story.id,
-                name: story.name,
-                    description: story.description,
-                        workflowId: story.workflow_id,
-                            workflowStateId: story.workflow_state_id
+            name: story.name,
+            description: story.description,
+            workflowId: story.workflow_id,
+            workflowStateId: story.workflow_state_id
         };
     } catch (err) {
         if (err.response.status === 404) {
