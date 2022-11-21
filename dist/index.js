@@ -16834,11 +16834,11 @@ function updateDescriptionsMaybe(stories, releaseUrl, shouldUpdateDescription) {
  * @param {Object} story - shortcut story object.
  * @param {string} endStateName - Name of the workflow state to tranisition
  *                 stories to.
- * @return {Object} - shortcut story object with ID of desired workflow end state.
+ * @return {Promise<Object>} - shortcut story object with ID of desired workflow end state.
  */
 
-function addEndStateId(story, endStateName) {
-    const { data: workflow } = client.getWorkflow(story.workflowId);
+async function addEndStateId(story, endStateName) {
+    const { data: workflow } = await client.getWorkflow(story.workflowId);
     core.debug('\n full workflow response: \n \n' + JSON.stringify(workflow));
     const workflowState = workflow.states.find(
         state => state.name === endStateName
@@ -16855,11 +16855,13 @@ function addEndStateId(story, endStateName) {
  *
  * @param {Array} stories - shortcut story objects.
  * @param {string} endStateName - Name of the workflow state to tranisition stories to.
- * @return {Object} - shortcut story object with ID of desired workflow end state.
+ * @return {Promise<Array>} - Array of shortcut story object with ID of desired workflow end state.
  */
 
-function addEndStateIds(stories, endStateName) {
-    return stories.map(story => addEndStateId(story, endStateName));
+async function addEndStateIds(stories, endStateName) {
+    return await Promise.all(
+        stories.map(story => addEndStateId(story, endStateName))
+    );
 }
 
 /**
