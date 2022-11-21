@@ -219,6 +219,7 @@ async function releaseStories(
         storiesWithUpdatedDescriptions,
         endStateName
     );
+    core.debug('\n stories with end states: \n \n' + JSON.stringify(storiesWithEndStateIds));
     const updatedStoryNames = await updateStories(storiesWithEndStateIds);
     return updatedStoryNames;
 }
@@ -246,6 +247,7 @@ async function transitionStories(
         stories,
         endStateName
     );
+    core.debug('\n stories with end states: \n \n' + JSON.stringify(storiesWithEndStateIds));
     const updatedStoryNames = await updateStories(storiesWithEndStateIds);
     return updatedStoryNames;
 }
