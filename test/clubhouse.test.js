@@ -324,24 +324,24 @@ https://github.com/org/repo/releases/14
             sinon.restore();
         });
 
-        it('should add expected id when end state name is "Completed"', function () {
+        it('should add expected id when end state name is "Completed"', async function () {
             let stubbedClient = sinon.stub(ch.client, 'getWorkflow');
             stubbedClient.returns({ data: workflows[0] });
-            const newStory = ch.addEndStateId(stories[0], "Completed");
+            const newStory = await ch.addEndStateId(stories[0], "Completed");
             assert.strictEqual(newStory.endStateId, completedStateId);
         });
 
-        it('should add expected id when end state name is not "Completed"', function () {
+        it('should add expected id when end state name is not "Completed"', async function () {
             let stubbedClient = sinon.stub(ch.client, 'getWorkflow');
             stubbedClient.returns({ data: workflows[1] });
-            const newStory = ch.addEndStateId(stories[1], "Done");
+            const newStory = await ch.addEndStateId(stories[1], "Done");
             assert.strictEqual(newStory.endStateId, doneStateId);
         });
 
-        it('should preserve other properties of story', function () {
+        it('should preserve other properties of story', async function () {
             let stubbedClient = sinon.stub(ch.client, 'getWorkflow');
             stubbedClient.returns({ data: workflows[0] });
-            const newStory = ch.addEndStateId(stories[0], "Completed");
+            const newStory = await ch.addEndStateId(stories[0], "Completed");
             assert(
                 'storyId' in newStory
                 && 'name' in newStory
@@ -354,13 +354,7 @@ https://github.com/org/repo/releases/14
         afterEach(function () {
             sinon.restore();
         });
-        let stubbedClient = sinon.stub(ch.client, 'getWorkflow');
-        stubbedClient.returns({ data: workflows[0] });
-        const story = stories[0];
-        const storyWithEndStateId = ch.addEndStateId(
-            story,
-            "Completed"
-        );
+        const storyWithEndStateId = { ...stories[0], endStateId: completedStateId };
 
         it('should succeed when returns updated story', async function () {
             const returnedStory = {
@@ -376,7 +370,7 @@ https://github.com/org/repo/releases/14
             );
         });
 
-        it('should error when it returns not updated story', function () {
+        it('should error when it returns not updated story', async function () {
             async function shouldThrow() {
                 await ch.updateStory(storyWithEndStateId);
             }
