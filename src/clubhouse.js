@@ -215,7 +215,7 @@ async function releaseStories(
         releaseUrl,
         shouldUpdateDescription
     );
-    const storiesWithEndStateIds = addEndStateIds(
+    const storiesWithEndStateIds = await addEndStateIds(
         storiesWithUpdatedDescriptions,
         endStateName
     );
@@ -242,7 +242,7 @@ async function transitionStories(
         return storyIds;
     }
     const stories = await addDetailstoStories(storyIds);
-    const storiesWithEndStateIds = addEndStateIds(
+    const storiesWithEndStateIds = await addEndStateIds(
         stories,
         endStateName
     );
