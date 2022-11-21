@@ -164,6 +164,7 @@ async function updateStory(storyWithEndStateId) {
         storyWithEndStateId.storyId,
         params
     );
+    core.debug('\n full update story response: \n \n' + JSON.stringify(updatedStory));
     if (updatedStory.workflow_state_id !== storyWithEndStateId.endStateId) {
         throw new Error(
             `Tranistion failed for story ${storyWithEndStateId.storyId}`
@@ -221,6 +222,7 @@ async function releaseStories(
     );
     core.debug('\n stories with end states: \n \n' + JSON.stringify(storiesWithEndStateIds));
     const updatedStoryNames = await updateStories(storiesWithEndStateIds);
+    core.debug('\n updated story names: \n \n' + JSON.stringify(updatedStoryNames));
     return updatedStoryNames;
 }
 
@@ -249,6 +251,7 @@ async function transitionStories(
     );
     core.debug('\n stories with end states: \n \n' + JSON.stringify(storiesWithEndStateIds));
     const updatedStoryNames = await updateStories(storiesWithEndStateIds);
+    core.debug('\n updated story names: \n \n' + JSON.stringify(updatedStoryNames));
     return updatedStoryNames;
 }
 
