@@ -29,7 +29,7 @@
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1",
-    "clubhouse-lib": "^0.13.0"
+    "@useshortcut/client": "^1.0.0"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.34",

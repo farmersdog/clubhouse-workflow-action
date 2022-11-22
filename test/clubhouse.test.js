@@ -8,9 +8,9 @@ class ClientError extends Error {
         super('error msg');
         this.response = response;
     }
-  }
+}
 
-describe('clubhouse module', function() {
+describe('clubhouse module', function () {
 
     const release0 = `
 ### Features
@@ -35,7 +35,7 @@ someSC88foo
 Thissc-33th
 `;
 
-     const oldFormatRelease0 = `
+    const oldFormatRelease0 = `
 ### Old format features
 [ch0002] feature 1
 [ch1] feature 2
@@ -49,7 +49,7 @@ Thissc-33th
 [ch-314] Bug 3
 [Ch2] Bug 4
 `;
-     const oldFormatRelease1 = `
+    const oldFormatRelease1 = `
 ch4287 found a bug(ch890) blah
 ch8576cool new stuff
 [ch3]other thing
@@ -71,15 +71,15 @@ Thisch-33th
     const stories = [
         {
             storyId: 1234,
-            projectId: 987,
             name: 'cool feature 19',
-            description: 'the customers really want this thing, product is certain'
+            description: 'the customers really want this thing, product is certain',
+            workflowId: 437
         },
         {
             storyId: 5678,
-            projectId: 1010,
             name: 'terrible bug 37',
-            description: ''
+            description: '',
+            workflowId: 89
         }
     ];
     const completedStateId = 500000019;
@@ -87,6 +87,7 @@ Thisch-33th
     const workflows = [
         {
             "entity_type": "workflow",
+            "id": 437,
             "project_ids": [
                 2612,
                 247,
@@ -119,6 +120,7 @@ Thisch-33th
         },
         {
             "entity_type": "workflow",
+            "id": 89,
             "project_ids": [
                 487,
                 40,
@@ -226,16 +228,16 @@ Thisch-33th
             const storyIds = ch.extractStoryIds(oldFormatDuplicates);
             assert.deepStrictEqual(storyIds, expectedIdsDups);
         });
-    })
+    });
 
     describe('adding details to stories', function () {
-        afterEach(function() {
+        afterEach(function () {
             sinon.restore();
         });
         it('should return story id for 404 not found', async function () {
             let stubbedClient = sinon.stub(ch.client, 'getStory');
-            stubbedClient.throws(function() {
-                const err = new ClientError({status: 404});
+            stubbedClient.throws(function () {
+                const err = new ClientError({ status: 404 });
                 return err;
             });
             const story = await ch.addDetailstoStory('27543');
@@ -247,8 +249,8 @@ Thisch-33th
                 await ch.addDetailstoStory('27543');
             }
             let stubbedClient = sinon.stub(ch.client, 'getStory');
-            stubbedClient.throws(function() {
-                const err = new ClientError({status: 500});
+            stubbedClient.throws(function () {
+                const err = new ClientError({ status: 500 });
                 return err;
             });
             assert.rejects(
@@ -281,7 +283,7 @@ https://github.com/org/repo/releases/14
         });
 
         it('should not update a description that has release info', function () {
-            const story = {description: expectedDescription1};
+            const story = { description: expectedDescription1 };
             const newStory = ch.updateDescription(story, releaseUrl);
             assert.strictEqual(newStory.description, expectedDescription1);
         });
@@ -291,7 +293,6 @@ https://github.com/org/repo/releases/14
             const newStory = ch.updateDescription(stories[0], releaseUrl);
             assert(
                 'storyId' in newStory
-                && 'projectId' in newStory
                 && 'name' in newStory
             );
         });
@@ -319,22 +320,30 @@ https://github.com/org/repo/releases/14
     });
 
     describe('Adding the end workflow state id to stories', function () {
+        afterEach(function () {
+            sinon.restore();
+        });
 
-        it('should add expected id when end state name is "Completed"', function () {
-            const newStory = ch.addEndStateId(stories[0], workflows, "Completed");
+        it('should add expected id when end state name is "Completed"', async function () {
+            let stubbedClient = sinon.stub(ch.client, 'getWorkflow');
+            stubbedClient.returns({ data: workflows[0] });
+            const newStory = await ch.addEndStateId(stories[0], "Completed");
             assert.strictEqual(newStory.endStateId, completedStateId);
         });
 
-        it('should add expected id when end state name is not "Completed"', function () {
-            const newStory = ch.addEndStateId(stories[1], workflows, "Done");
+        it('should add expected id when end state name is not "Completed"', async function () {
+            let stubbedClient = sinon.stub(ch.client, 'getWorkflow');
+            stubbedClient.returns({ data: workflows[1] });
+            const newStory = await ch.addEndStateId(stories[1], "Done");
             assert.strictEqual(newStory.endStateId, doneStateId);
         });
 
-        it('should preserve other properties of story', function () {
-            const newStory = ch.addEndStateId(stories[0], workflows, "Completed");
+        it('should preserve other properties of story', async function () {
+            let stubbedClient = sinon.stub(ch.client, 'getWorkflow');
+            stubbedClient.returns({ data: workflows[0] });
+            const newStory = await ch.addEndStateId(stories[0], "Completed");
             assert(
                 'storyId' in newStory
-                && 'projectId' in newStory
                 && 'name' in newStory
                 && 'description' in newStory
             );
@@ -342,15 +351,10 @@ https://github.com/org/repo/releases/14
     });
 
     describe("Updating stories with the clubhouse api", function () {
-        afterEach(function() {
+        afterEach(function () {
             sinon.restore();
         });
-        const story = stories[0];
-        const storyWithEndStateId = ch.addEndStateId(
-            story,
-            [workflows[0]],
-            "Completed"
-        );
+        const storyWithEndStateId = { ...stories[0], endStateId: completedStateId };
 
         it('should succeed when returns updated story', async function () {
             const returnedStory = {
@@ -358,7 +362,7 @@ https://github.com/org/repo/releases/14
                 workflow_state_id: storyWithEndStateId.endStateId
             };
             let stubbedClient = sinon.stub(ch.client, 'updateStory');
-            stubbedClient.returns(returnedStory);
+            stubbedClient.returns({ data: returnedStory });
             const name = await ch.updateStory(storyWithEndStateId);
             assert(
                 stubbedClient.calledOnceWith(storyWithEndStateId.storyId)
@@ -366,7 +370,7 @@ https://github.com/org/repo/releases/14
             );
         });
 
-        it('should error when it returns not updated story', function () {
+        it('should error when it returns not updated story', async function () {
             async function shouldThrow() {
                 await ch.updateStory(storyWithEndStateId);
             }
@@ -375,7 +379,7 @@ https://github.com/org/repo/releases/14
                 workflow_state_id: storyWithEndStateId.endStateId - 10
             };
             let stubbedClient = sinon.stub(ch.client, 'updateStory');
-            stubbedClient.returns(returnedStory);
+            stubbedClient.returns({ data: returnedStory });
             assert.rejects(
                 shouldThrow,
                 Error,
