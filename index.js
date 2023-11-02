@@ -1,42 +1,44 @@
-const github = require('@actions/github');
-const core = require('@actions/core');
+const github = require("@actions/github");
+const core = require("@actions/core");
 
-const ch = require('./src/clubhouse');
+const ch = require("./src/clubhouse");
 
 async function run() {
   try {
     const { payload, eventName } = github.context;
-    core.debug("context stuff", JSON.stringify(payload), JSON.stringify(eventName))
-    console.log("context stuff", JSON.stringify(payload), JSON.stringify(eventName));
+    core.debug(JSON.stringify({ payload, eventName }));
+    console.log(
+      "context stuff",
+      JSON.stringify(payload),
+      JSON.stringify(eventName)
+    );
     let updatedStories;
     if (eventName === "release") {
       const { body, html_url } = payload.release;
-      const addReleaseInfo = (core.getInput('addReleaseInfo') === 'true');
+      const addReleaseInfo = core.getInput("addReleaseInfo") === "true";
       updatedStories = await ch.releaseStories(
         body,
-        core.getInput('endStateName'),
+        core.getInput("endStateName"),
         html_url,
         addReleaseInfo
       );
-    } else if (eventName === "pull_request" ) {
+    } else if (eventName === "pull_request") {
       const { title, body } = payload.pull_request;
       const { ref } = payload.pull_request.head;
       const content = `${title} ${body} ${ref}`;
       updatedStories = await ch.transitionStories(
         content,
-        core.getInput('endStateName')
+        core.getInput("endStateName")
       );
-    } else if (eventName === "pull_request_review"){
-      core.debug("payloaad", JSON.stringify(payload));
-      console.log("Payload",JSON.stringify(payload));
-    }else {
-      
+    } else if (eventName === "pull_request_review") {
+      core.debug(JSON.stringify(payload));
+      console.log("Payload", JSON.stringify(payload));
+    } else {
       throw new Error(`Invalid event type shevcvale geficebi ${eventName}`);
     }
-    core.setOutput('updatedStories', JSON.stringify(updatedStories));
-    console.log(`Updated Stories: \n \n${updatedStories.join(' \n')}`);
-  }
-  catch (error) {
+    core.setOutput("updatedStories", JSON.stringify(updatedStories));
+    console.log(`Updated Stories: \n \n${updatedStories.join(" \n")}`);
+  } catch (error) {
     core.setFailed(error.message);
   }
 }
