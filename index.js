@@ -16,7 +16,7 @@ async function run() {
         html_url,
         addReleaseInfo
       );
-    } else if (eventName === "pull_request" || ) {
+    } else if (eventName === "pull_request" ) {
       const { title, body } = payload.pull_request;
       const { ref } = payload.pull_request.head;
       const content = `${title} ${body} ${ref}`;
@@ -26,7 +26,7 @@ async function run() {
       );
     } else if (eventName === "pull_request_review"){
       core.debug("payloaad", payload);
-      console.log("Payload,"payload);
+      console.log("Payload",payload);
     }else {
       throw new Error("Invalid event type");
     }
