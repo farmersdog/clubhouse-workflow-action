@@ -6,12 +6,7 @@ const ch = require("./src/clubhouse");
 async function run() {
   try {
     const { payload, eventName } = github.context;
-    core.debug(JSON.stringify({ payload, eventName }));
-    console.log(
-      "context stuff",
-      JSON.stringify(payload),
-      JSON.stringify(eventName)
-    );
+
     let updatedStories;
     if (eventName === "release") {
       const { body, html_url } = payload.release;
@@ -38,8 +33,6 @@ async function run() {
         content,
         core.getInput("endStateName")
       );
-      core.debug(JSON.stringify(payload));
-      console.log("Payload", JSON.stringify(payload));
     } else {
       throw new Error(`Invalid event type shevcvale geficebi ${eventName}`);
     }
