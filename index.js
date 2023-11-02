@@ -31,6 +31,13 @@ async function run() {
         core.getInput("endStateName")
       );
     } else if (eventName === "pull_request_review") {
+      const { title, body } = payload.pull_request;
+      const { ref } = payload.pull_request.head;
+      const content = `${title} ${body} ${ref}`;
+      updatedStories = await ch.transitionStories(
+        content,
+        core.getInput("endStateName")
+      );
       core.debug(JSON.stringify(payload));
       console.log("Payload", JSON.stringify(payload));
     } else {
