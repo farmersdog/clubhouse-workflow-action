@@ -6,7 +6,8 @@ const ch = require('./src/clubhouse');
 async function run() {
   try {
     const { payload, eventName } = github.context;
-    core.debug("context stuff", payload, eventName)
+    core.debug("context stuff", JSON.stringify(payload), JSON.stringify(eventName))
+    console.log("context stuff", JSON.stringify(payload), JSON.stringify(eventName));
     let updatedStories;
     if (eventName === "release") {
       const { body, html_url } = payload.release;
@@ -26,11 +27,11 @@ async function run() {
         core.getInput('endStateName')
       );
     } else if (eventName === "pull_request_review"){
-      core.debug("payloaad", payload);
-      console.log("Payload",payload);
+      core.debug("payloaad", JSON.stringify(payload));
+      console.log("Payload",JSON.stringify(payload));
     }else {
       
-      throw new Error("Invalid event type");
+      throw new Error(`Invalid event type shevcvale geficebi ${eventName}`);
     }
     core.setOutput('updatedStories', JSON.stringify(updatedStories));
     console.log(`Updated Stories: \n \n${updatedStories.join(' \n')}`);
