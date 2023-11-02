@@ -6,6 +6,7 @@ const ch = require('./src/clubhouse');
 async function run() {
   try {
     const { payload, eventName } = github.context;
+    core.debug("context stuff", payload, eventName)
     let updatedStories;
     if (eventName === "release") {
       const { body, html_url } = payload.release;
@@ -28,6 +29,7 @@ async function run() {
       core.debug("payloaad", payload);
       console.log("Payload",payload);
     }else {
+      
       throw new Error("Invalid event type");
     }
     core.setOutput('updatedStories', JSON.stringify(updatedStories));
