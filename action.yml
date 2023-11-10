@@ -7,6 +7,9 @@ inputs:
   clubhouseToken:
     description: auth token for clubhouse api
     required: true
+  githubToken:
+    description: github auth token for api access
+    required: true
   endStateName:
     description: name of the workflow state stories should be transisitioned to
     required: false
@@ -14,10 +17,10 @@ inputs:
   addReleaseInfo:
     description: update story descriptions with link to github release
     required: false
-    default: 'false'
+    default: "false"
 outputs:
   updatedStories:
     description: An array of the story names that were updated
 runs:
-  using: node16
+  using: node18
   main: dist/index.js
