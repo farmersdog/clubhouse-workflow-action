@@ -369,7 +369,7 @@ async function actionManager(payload, eventName) {
         const updatedStories = await onPullRequestOpen(payload);
         return updatedStories;
       }
-      throw new Error(`Invalid pull request action {payload.action}`);
+      throw new Error(`Invalid pull request action ${payload.action}`);
     }
     case "pull_request_review": {
       const updatedStories = await onPullRequestReview(payload);
