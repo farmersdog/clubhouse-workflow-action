@@ -16717,52 +16717,60 @@ function wrappy (fn, cb) {
 
 const { ShortcutClient } = __nccwpck_require__(5914);
 const core = __nccwpck_require__(2186);
-
+const github = __nccwpck_require__(5438);
+const { getDataFromPR, getStoryGithubStats } = __nccwpck_require__(8396);
+const {
+  PR_ALL_OK,
+  PR_ALL_QA_OK,
+  PR_ANY_QA_FAIL,
+  PR_ANY_QA_CHANGE_COMMIT_NOT_WIP,
+} = __nccwpck_require__(4604);
 const shortcutToken = process.env.INPUT_CLUBHOUSETOKEN;
 const client = new ShortcutClient(shortcutToken);
 
+const octokit = github.getOctokit(process.env.INPUT_GITHUBTOKEN);
 /**
  * Finds all shortcut story IDs in some string content.
  *
  * @param {string} content - content that may contain story IDs.
- * @return {Array} - shortcut story IDs 1-7 digit strings.
+ * @return {Array<number>} - shortcut story IDs 1-7 digit strings.
  */
 
 function extractStoryIds(content) {
-    const regex = /(?<=sc|sc-|ch|ch-)\d{1,7}/gi;
-    const all = content.match(regex);
-    const unique = [...new Set(all)];
-    return unique;
+  const regex = /(?<=sc|sc-|ch|ch-)\d{1,7}/gi;
+  const all = content.match(regex);
+  const unique = [...new Set(all)].map((i) => +i);
+  return unique;
 }
 
 /**
  * Creates a shortcut story object with subset of properties for given id.
  *
- * @param {string} storyId - The shortcut id for the story.
+ * @param {number} storyId - The shortcut id for the story.
  * @return {Promise<Object>} - shortcut story object with required properties.
  */
 
 async function addDetailstoStory(storyId) {
-    try {
-        const { data: story } = await client.getStory(storyId);
-        core.debug('\n getStory full response: \n \n' + JSON.stringify(story));
-        return {
-            // shortcut represents all IDs as numbers
-            storyId: story.id,
-            name: story.name,
-            description: story.description,
-            workflowId: story.workflow_id,
-            workflowStateId: story.workflow_state_id
-        };
-    } catch (err) {
-        core.debug('\n getStory full error: \n \n' + JSON.stringify(err));
-        if (err.response.status === 404) {
-            console.log(`Could not locate story: ${storyId}`);
-            return storyId;
-        } else {
-            throw err;
-        }
+  try {
+    const { data: story } = await client.getStory(storyId);
+    core.debug("\n getStory full response: \n \n" + JSON.stringify(story));
+    return {
+      // shortcut represents all IDs as numbers
+      storyId: story.id,
+      name: story.name,
+      description: story.description,
+      workflowId: story.workflow_id,
+      workflowStateId: story.workflow_state_id,
+    };
+  } catch (err) {
+    core.debug("\n getStory full error: \n \n" + JSON.stringify(err));
+    if (err.response.status === 404) {
+      console.log(`Could not locate story: ${storyId}`);
+      return storyId;
+    } else {
+      throw err;
     }
+  }
 }
 
 /**
@@ -16773,16 +16781,16 @@ async function addDetailstoStory(storyId) {
  */
 
 async function addDetailstoStories(storyIds) {
-    const stories = await Promise.all(
-        storyIds.map(id => addDetailstoStory(id))
-    );
-    return stories.filter(story => {
-        if (typeof story === 'string') {
-            return false;
-        } else {
-            return true;
-        }
-    });
+  const stories = await Promise.all(
+    storyIds.map((id) => addDetailstoStory(id))
+  );
+  return stories.filter((story) => {
+    if (typeof story === "string") {
+      return false;
+    } else {
+      return true;
+    }
+  });
 }
 
 /**
@@ -16794,19 +16802,19 @@ async function addDetailstoStories(storyIds) {
  */
 
 function updateDescription(story, releaseUrl) {
-    if (story.description.includes('Release Info')) {
-        return story;
-    }
-    const releaseSection = `
+  if (story.description.includes("Release Info")) {
+    return story;
+  }
+  const releaseSection = `
 
 ### Release Info
 ${releaseUrl}
 `;
-    const newDescription = story.description + releaseSection;
-    return {
-        ...story,
-        description: newDescription
-    };
+  const newDescription = story.description + releaseSection;
+  return {
+    ...story,
+    description: newDescription,
+  };
 }
 
 /**
@@ -16821,11 +16829,11 @@ ${releaseUrl}
  */
 
 function updateDescriptionsMaybe(stories, releaseUrl, shouldUpdateDescription) {
-    if (shouldUpdateDescription) {
-        return stories.map(story => updateDescription(story, releaseUrl));
-    } else {
-        return stories;
-    }
+  if (shouldUpdateDescription) {
+    return stories.map((story) => updateDescription(story, releaseUrl));
+  } else {
+    return stories;
+  }
 }
 
 /**
@@ -16838,15 +16846,15 @@ function updateDescriptionsMaybe(stories, releaseUrl, shouldUpdateDescription) {
  */
 
 async function addEndStateId(story, endStateName) {
-    const { data: workflow } = await client.getWorkflow(story.workflowId);
-    core.debug('\n full workflow response: \n \n' + JSON.stringify(workflow));
-    const workflowState = workflow.states.find(
-        state => state.name === endStateName
-    );
-    return {
-        ...story,
-        endStateId: workflowState.id
-    };
+  const { data: workflow } = await client.getWorkflow(story.workflowId);
+  core.debug("\n full workflow response: \n \n" + JSON.stringify(workflow));
+  const workflowState = workflow.states.find(
+    (state) => state.name === endStateName
+  );
+  return {
+    ...story,
+    endStateId: workflowState.id,
+  };
 }
 
 /**
@@ -16859,9 +16867,9 @@ async function addEndStateId(story, endStateName) {
  */
 
 async function addEndStateIds(stories, endStateName) {
-    return await Promise.all(
-        stories.map(story => addEndStateId(story, endStateName))
-    );
+  return await Promise.all(
+    stories.map((story) => addEndStateId(story, endStateName))
+  );
 }
 
 /**
@@ -16873,21 +16881,23 @@ async function addEndStateIds(stories, endStateName) {
  */
 
 async function updateStory(storyWithEndStateId) {
-    const params = {
-        description: storyWithEndStateId.description,
-        workflow_state_id: storyWithEndStateId.endStateId
-    };
-    const { data: updatedStory } = await client.updateStory(
-        storyWithEndStateId.storyId,
-        params
+  const params = {
+    description: storyWithEndStateId.description,
+    workflow_state_id: storyWithEndStateId.endStateId,
+  };
+  const { data: updatedStory } = await client.updateStory(
+    storyWithEndStateId.storyId,
+    params
+  );
+  core.debug(
+    "\n full update story response: \n \n" + JSON.stringify(updatedStory)
+  );
+  if (updatedStory.workflow_state_id !== storyWithEndStateId.endStateId) {
+    throw new Error(
+      `Tranistion failed for story ${storyWithEndStateId.storyId}`
     );
-    core.debug('\n full update story response: \n \n' + JSON.stringify(updatedStory));
-    if (updatedStory.workflow_state_id !== storyWithEndStateId.endStateId) {
-        throw new Error(
-            `Tranistion failed for story ${storyWithEndStateId.storyId}`
-        );
-    }
-    return updatedStory.name;
+  }
+  return updatedStory.name;
 }
 
 /**
@@ -16899,9 +16909,9 @@ async function updateStory(storyWithEndStateId) {
  */
 
 async function updateStories(storiesWithEndStateIds) {
-    return await Promise.all(
-        storiesWithEndStateIds.map(story => updateStory(story))
-    );
+  return await Promise.all(
+    storiesWithEndStateIds.map((story) => updateStory(story))
+  );
 }
 
 /**
@@ -16916,75 +16926,410 @@ async function updateStories(storiesWithEndStateIds) {
  */
 
 async function releaseStories(
-    releaseBody,
-    endStateName,
+  releaseBody,
+  endStateName,
+  releaseUrl,
+  shouldUpdateDescription
+) {
+  const storyIds = extractStoryIds(releaseBody);
+  core.debug("\n story ids found: \n \n" + JSON.stringify(storyIds));
+  if (storyIds === null) {
+    console.warn("No shortcut stories were found in the release.");
+    return [];
+  }
+  const stories = await addDetailstoStories(storyIds);
+  const storiesWithUpdatedDescriptions = updateDescriptionsMaybe(
+    stories,
     releaseUrl,
     shouldUpdateDescription
-) {
-    const storyIds = extractStoryIds(releaseBody);
-    core.debug('\n story ids found: \n \n' + JSON.stringify(storyIds));
-    if (storyIds === null) {
-        console.warn('No shortcut stories were found in the release.');
-        return [];
-    }
-    const stories = await addDetailstoStories(storyIds);
-    const storiesWithUpdatedDescriptions = updateDescriptionsMaybe(
-        stories,
-        releaseUrl,
-        shouldUpdateDescription
-    );
-    const storiesWithEndStateIds = await addEndStateIds(
-        storiesWithUpdatedDescriptions,
-        endStateName
-    );
-    core.debug('\n stories with end states: \n \n' + JSON.stringify(storiesWithEndStateIds));
-    const updatedStoryNames = await updateStories(storiesWithEndStateIds);
-    core.debug('\n updated story names: \n \n' + JSON.stringify(updatedStoryNames));
-    return updatedStoryNames;
+  );
+  const storiesWithEndStateIds = await addEndStateIds(
+    storiesWithUpdatedDescriptions,
+    endStateName
+  );
+  core.debug(
+    "\n stories with end states: \n \n" + JSON.stringify(storiesWithEndStateIds)
+  );
+  const updatedStoryNames = await updateStories(storiesWithEndStateIds);
+  core.debug(
+    "\n updated story names: \n \n" + JSON.stringify(updatedStoryNames)
+  );
+  return updatedStoryNames;
 }
 
 /**
  * Updates all shortcut stories found in given content.
  *
- * @param {string} content - a string that might have shortcut story IDs.
+ * @param {Array<number>} storyIds - a string that might have shortcut story IDs.
  * @param {string} endStateName - Desired workflow state for stories.
  * @return {Promise<Array>} - Names of the stories that were updated
  */
 
-async function transitionStories(
-    content,
-    endStateName
-) {
-    const storyIds = extractStoryIds(content);
-    core.debug('\n story ids found: \n \n' + JSON.stringify(storyIds));
-    if (storyIds.length === 0) {
-        console.warn('No shortcut stories were found.');
-        return storyIds;
+async function transitionStories(storyIds, endStateName) {
+  core.debug("\n story ids found: \n \n" + JSON.stringify(storyIds));
+  if (storyIds.length === 0) {
+    console.warn("No shortcut stories were found.");
+    return storyIds;
+  }
+  const stories = await addDetailstoStories(storyIds);
+  const storiesWithEndStateIds = await addEndStateIds(stories, endStateName);
+  core.debug(
+    "\n stories with end states: \n \n" + JSON.stringify(storiesWithEndStateIds)
+  );
+  const updatedStoryNames = await updateStories(storiesWithEndStateIds);
+  core.debug(
+    "\n updated story names: \n \n" + JSON.stringify(updatedStoryNames)
+  );
+  return updatedStoryNames;
+}
+
+getStoryGithubStats(67355, client, octokit);
+
+/**
+ * * @param {import("@actions/github/lib/interfaces").WebhookPayload} payload
+ */
+async function onPullRequestOpen(payload) {
+  if (!payload.pull_request) {
+    core.debug("No Pull Request \n\n\n" + JSON.stringify(payload));
+    throw new Error("No Pull Request");
+  }
+  const storyIds = getAllStoryIds(payload);
+  const updatedStories = [];
+
+  for (const storyId of storyIds) {
+    const stats = await getStoryGithubStats(storyId, client, octokit);
+    // TODO: Check this logic, might break
+    if (stats.totalBranches === stats.branchesWithOpenPrs + 1) {
+      transitionStories([storyId], "Ready to Feature QA");
+      updatedStories.push(storyId);
     }
-    const stories = await addDetailstoStories(storyIds);
-    const storiesWithEndStateIds = await addEndStateIds(
-        stories,
-        endStateName
-    );
-    core.debug('\n stories with end states: \n \n' + JSON.stringify(storiesWithEndStateIds));
-    const updatedStoryNames = await updateStories(storiesWithEndStateIds);
-    core.debug('\n updated story names: \n \n' + JSON.stringify(updatedStoryNames));
-    return updatedStoryNames;
+  }
+  return updatedStories;
+}
+
+/**
+ * * @param {import("@actions/github/lib/interfaces").WebhookPayload} payload
+ */
+function getAllStoryIds(payload) {
+  const prData = getDataFromPR(payload);
+  const content = `${prData.title} ${prData.body} ${prData.ref}`;
+  const storyIds = extractStoryIds(content);
+  return storyIds;
+}
+
+/**
+ * * @param {import("@actions/github/lib/interfaces").WebhookPayload} payload
+ */
+async function onPullRequestReview(payload) {
+  if (!payload.pull_request) {
+    core.debug("No Pull Request \n\n\n" + JSON.stringify(payload));
+    throw new Error("No Pull Request");
+  }
+  const storyIds = getAllStoryIds(payload);
+  const updatedStories = [];
+
+  for (const storyId of storyIds) {
+    const stats = await getStoryGithubStats(storyId, client, octokit);
+    // TODO: Check this logic, might break
+    if (stats.totalBranches === stats.branchesWithOpenPrs + 1) {
+      if (PR_ALL_OK(stats.allOpenPrs)) {
+        transitionStories([storyId], "Ready for Staging");
+        updatedStories.push(storyId);
+      } else if (PR_ALL_QA_OK(stats.allOpenPrs)) {
+        transitionStories([storyId], "Ready for Code Review");
+        updatedStories.push(storyId);
+      } else if (PR_ANY_QA_FAIL(stats.allOpenPrs)) {
+        transitionStories([storyId], "Test Fail");
+        updatedStories.push(storyId);
+      }
+    }
+  }
+  return updatedStories;
+}
+
+/**
+ *
+ * @param {import("@actions/github/lib/interfaces").WebhookPayload} payload
+ */
+async function onPullRequestSynchronize(payload) {
+  if (!payload.pull_request) {
+    core.debug("No Pull Request \n\n\n" + JSON.stringify(payload));
+    throw new Error("No Pull Request");
+  }
+  const storyIds = getAllStoryIds(payload);
+  const updatedStories = [];
+  for (const storyId of storyIds) {
+    const stats = await getStoryGithubStats(storyId, client, octokit);
+    // TODO: Check this logic, might break
+    if (stats.totalBranches === stats.branchesWithOpenPrs + 1) {
+      if (PR_ANY_QA_CHANGE_COMMIT_NOT_WIP(stats.allOpenPrs)) {
+        transitionStories([storyId], "Ready for Feature QA");
+        updatedStories.push(storyId);
+      }
+    }
+  }
+  return updatedStories;
+}
+/**
+ *
+ * @param {import("@actions/github/lib/interfaces").WebhookPayload} payload
+ * @param {string} eventName
+ */
+async function actionManager(payload, eventName) {
+  switch (eventName) {
+    case "pull_request": {
+      if (payload.action === "synchronize") {
+        const updatedStories = await onPullRequestSynchronize(payload);
+        return updatedStories;
+      }
+      if (payload.action === "opened" || payload.action === "reopened") {
+        const updatedStories = await onPullRequestOpen(payload);
+        return updatedStories;
+      }
+      throw new Error(`Invalid pull request action {payload.action}`);
+    }
+    case "pull_request_review": {
+      const updatedStories = await onPullRequestReview(payload);
+      return updatedStories;
+    }
+    default:
+      throw new Error(`Invalid event type ${eventName}`);
+  }
 }
 
 module.exports = {
-    client,
-    extractStoryIds,
-    addDetailstoStory,
-    addDetailstoStories,
-    updateDescription,
-    updateDescriptionsMaybe,
-    addEndStateId,
-    addEndStateIds,
-    updateStory,
-    updateStories,
-    releaseStories,
-    transitionStories
+  client,
+  extractStoryIds,
+  addDetailstoStory,
+  addDetailstoStories,
+  updateDescription,
+  updateDescriptionsMaybe,
+  addEndStateId,
+  addEndStateIds,
+  updateStory,
+  updateStories,
+  releaseStories,
+  transitionStories,
+  actionManager,
+};
+
+
+/***/ }),
+
+/***/ 4604:
+/***/ ((module) => {
+
+/**
+ *
+ * @param {any[]} prs
+ */
+function PR_ALL_OK(prs) {
+  return prs.every((pr) => pr.QAStatus === "OK" && pr.EngineerStatus === "OK");
+}
+
+/**
+ *
+ * @param {any[]} prs
+ */
+function PR_ALL_QA_OK(prs) {
+  return prs.every((pr) => pr.QAStatus === "OK");
+}
+
+/**
+ *
+ * @param {any[]} prs
+ */
+function PR_ALL_ENG_OK(prs) {
+  return prs.every((pr) => pr.EngineerStatus === "OK");
+}
+
+/**
+ *
+ * @param {any[]} prs
+ */
+function PR_ANY_QA_FAIL(prs) {
+  return prs.some((pr) => pr.QAStatus === "FAIL");
+}
+
+/**
+ *
+ * @param {any[]} prs
+ */
+function PR_ANY_QA_CHANGE_COMMIT_NOT_WIP(prs) {
+  return prs.some(
+    (pr) => pr.QAStatusLatest === "FAIL" && !pr.IsLatestCommitWIP
+  );
+}
+
+module.exports = {
+  PR_ALL_OK,
+  PR_ALL_QA_OK,
+  PR_ALL_ENG_OK,
+  PR_ANY_QA_FAIL,
+  PR_ANY_QA_CHANGE_COMMIT_NOT_WIP,
+};
+
+
+/***/ }),
+
+/***/ 8396:
+/***/ ((module) => {
+
+const PR_REVIEWS_QUERY = `
+query($name: String!, $owner: String!, $pull_number: Int!) {
+  repository(name: $name, owner: $owner) {
+    pullRequest(number: $pull_number) {
+      reviews(last:50) {
+        totalCount
+        nodes {
+          state
+          publishedAt
+          minimizedReason
+          pullRequest{
+            commits(last: 1){
+              nodes{
+                commit {
+                    message
+                    committedDate
+                }
+              }
+            }
+          }
+          author {
+          login
+        }
+      }
+    }
+  }
+}
+}
+`;
+
+function parsePullRequestFromUrl(pr) {
+  const parsedUrl = pr.url
+    .replace("https://github.com/", "")
+    .replace(/\/pull.*/, "");
+  const splitUrl = parsedUrl.split("/");
+  return {
+    prNum: pr.number,
+    repoName: splitUrl[1],
+    owner: splitUrl[0],
+  };
+}
+
+function getReviewCommentStatus(reviewComment, ignoreTime = false) {
+  if (!reviewComment) {
+    return "NA";
+  }
+  if (
+    !ignoreTime &&
+    reviewComment?.pullRequest?.commits?.nodes?.[0]?.commit?.committedDate
+  ) {
+    if (
+      new Date(reviewComment.publishedAt).getTime() <
+      new Date(
+        reviewComment.pullRequest.commits.nodes[0].commit.committedDate
+      ).getTime()
+    ) {
+      return "NA";
+    }
+  }
+
+  if (reviewComment.state === "APPROVED") {
+    return "OK";
+  } else {
+    return "FAIL";
+  }
+}
+
+/**
+ *
+ * @param {import("@actions/github/lib/interfaces").WebhookPayload | undefined} payload
+ * @returns
+ */
+function getDataFromPR(payload) {
+  if (!payload || !payload.pull_request) {
+    throw new Error("No Pull Request in Payload");
+  }
+  return {
+    title: payload.pull_request["title"],
+    body: payload.pull_request["body"],
+    ref: payload.pull_request["head"]["ref"],
+  };
+}
+
+function getIsLatestCommitWIP(reviewComment) {
+  const message =
+    reviewComment?.pullRequest?.commits?.nodes?.[0]?.commit?.message || "";
+  if (message.toLowerCase().includes("[wip]")) {
+    return true;
+  }
+  return false;
+}
+
+async function getStoryGithubStats(storyId, client, octokit) {
+  const story = await client.getStory(storyId);
+  let totalBranches = 0;
+  let branchesWithOpenPrs = 0;
+  const prNumbers = [];
+  for (const branch of story.data.branches) {
+    totalBranches++;
+    for (const pr of branch.pull_requests) {
+      if (pr.closed === false && pr.merged === false) {
+        branchesWithOpenPrs++;
+        const parsed = parsePullRequestFromUrl(pr);
+        prNumbers.push(parsed);
+      }
+    }
+  }
+
+  // const { owner, repo } = github.context.repo;
+  const allOpenPrs = await Promise.all(
+    prNumbers.map(async (stat) => {
+      const prResponse = await octokit.graphql(PR_REVIEWS_QUERY, {
+        name: stat.repoName,
+        owner: stat.owner,
+        pull_number: stat.prNum,
+      });
+      if (!prResponse?.repository?.pullRequest?.reviews) {
+        throw new Error(`Couldn't get PR Reviews, ${stat.prNum}`);
+      }
+      const nodesDesc = prResponse.repository.pullRequest.reviews.nodes.sort(
+        (a, b) =>
+          new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+      );
+      const latestQAReview = nodesDesc.find(
+        (item) => item.author.login === "Gagu93"
+      );
+      const latestNonQAReview = nodesDesc.find(
+        (item) => item.author.login !== "Gagu93"
+      );
+      const QAStatus = getReviewCommentStatus(latestQAReview);
+      const QAStatusLatest = getReviewCommentStatus(latestQAReview, true);
+      const EngineerStatus = getReviewCommentStatus(latestNonQAReview);
+      const IsLatestCommitWIP = getIsLatestCommitWIP(
+        latestQAReview || latestNonQAReview
+      );
+      return {
+        prNumber: stat.prNum,
+        repoName: stat.repoName,
+        QAStatus,
+        QAStatusLatest,
+        EngineerStatus,
+        IsLatestCommitWIP,
+      };
+    })
+  );
+
+  console.log(JSON.stringify(allOpenPrs, null, 2));
+  return { totalBranches, branchesWithOpenPrs, allOpenPrs };
+}
+
+module.exports = {
+  parsePullRequestFromUrl,
+  getReviewCommentStatus,
+  getDataFromPR,
+  getStoryGithubStats,
 };
 
 
@@ -17199,38 +17544,8 @@ const ch = __nccwpck_require__(4007);
 async function run() {
   try {
     const { payload, eventName } = github.context;
-
-    let updatedStories;
-    if (eventName === "release") {
-      const { body, html_url } = payload.release;
-      const addReleaseInfo = core.getInput("addReleaseInfo") === "true";
-      updatedStories = await ch.releaseStories(
-        body,
-        core.getInput("endStateName"),
-        html_url,
-        addReleaseInfo
-      );
-    } else if (eventName === "pull_request") {
-      const { title, body } = payload.pull_request;
-      const { ref } = payload.pull_request.head;
-      const content = `${title} ${body} ${ref}`;
-      updatedStories = await ch.transitionStories(
-        content,
-        core.getInput("endStateName")
-      );
-    } else if (eventName === "pull_request_review") {
-      const { title, body } = payload.pull_request;
-      const { ref } = payload.pull_request.head;
-      const content = `${title} ${body} ${ref}`;
-      updatedStories = await ch.transitionStories(
-        content,
-        core.getInput("endStateName")
-      );
-    } else {
-      throw new Error(`Invalid event type shevcvale geficebi ${eventName}`);
-    }
+    const updatedStories = await ch.actionManager(payload, eventName);
     core.setOutput("updatedStories", JSON.stringify(updatedStories));
-    console.log(`Updated Stories: \n \n${updatedStories.join(" \n")}`);
   } catch (error) {
     core.setFailed(error.message);
   }
