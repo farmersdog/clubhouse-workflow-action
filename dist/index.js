@@ -17086,7 +17086,7 @@ async function actionManager(payload, eventName) {
         const updatedStories = await onPullRequestOpen(payload);
         return updatedStories;
       }
-      throw new Error(`Invalid pull request action {payload.action}`);
+      throw new Error(`Invalid pull request action ${payload.action}`);
     }
     case "pull_request_review": {
       const updatedStories = await onPullRequestReview(payload);
@@ -17172,9 +17172,21 @@ module.exports = {
 
 /***/ }),
 
-/***/ 8396:
+/***/ 4631:
 /***/ ((module) => {
 
+const QA_USERNAMES = ["Gagu93", "ako-devidze"];
+const MOVE_TO_FEATURE_QA_COMMIT_BYPASS = ["[wip]"];
+
+module.exports = { QA_USERNAMES, MOVE_TO_FEATURE_QA_COMMIT_BYPASS };
+
+
+/***/ }),
+
+/***/ 8396:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const CONSTS = __nccwpck_require__(4631);
 const PR_REVIEWS_QUERY = `
 query($name: String!, $owner: String!, $pull_number: Int!) {
   repository(name: $name, owner: $owner) {
@@ -17261,10 +17273,15 @@ function getDataFromPR(payload) {
 function getIsLatestCommitWIP(reviewComment) {
   const message =
     reviewComment?.pullRequest?.commits?.nodes?.[0]?.commit?.message || "";
-  if (message.toLowerCase().includes("[wip]")) {
-    return true;
+  let shouldBypass = false;
+  for (let i = 0; i < CONSTS.MOVE_TO_FEATURE_QA_COMMIT_BYPASS.length; i++) {
+    const term = CONSTS.MOVE_TO_FEATURE_QA_COMMIT_BYPASS[i];
+    if (message.toLowerCase().includes(term)) {
+      shouldBypass = true;
+      break;
+    }
   }
-  return false;
+  return shouldBypass;
 }
 
 async function getStoryGithubStats(storyId, client, octokit) {
@@ -17298,11 +17315,14 @@ async function getStoryGithubStats(storyId, client, octokit) {
         (a, b) =>
           new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
       );
-      const latestQAReview = nodesDesc.find(
-        (item) => item.author.login === "Gagu93"
+      const latestQAReview = nodesDesc.find((item) =>
+        CONSTS.QA_USERNAMES.find((username) => item.author.login === username)
       );
       const latestNonQAReview = nodesDesc.find(
-        (item) => item.author.login !== "Gagu93"
+        (item) =>
+          !CONSTS.QA_USERNAMES.find(
+            (username) => username === item.author.login
+          )
       );
       const QAStatus = getReviewCommentStatus(latestQAReview);
       const QAStatusLatest = getReviewCommentStatus(latestQAReview, true);
