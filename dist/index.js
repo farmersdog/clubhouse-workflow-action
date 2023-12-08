@@ -17300,7 +17300,6 @@ async function getStoryGithubStats(storyId, client, octokit) {
     }
   }
 
-  // const { owner, repo } = github.context.repo;
   const allOpenPrs = await Promise.all(
     prNumbers.map(async (stat) => {
       const prResponse = await octokit.graphql(PR_REVIEWS_QUERY, {
