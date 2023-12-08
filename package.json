@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/farmersdog/clubhouse-workflow-action.git"
+    "url": "git+https://github.com/Digital-Clipboard/clubhouse-workflow-action.git"
   },
   "keywords": [
     "GitHub",
@@ -23,9 +23,9 @@
   "author": "The Farmer's Dog",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/farmersdog/clubhouse-workflow-action/issues"
+    "url": "https://github.com/Digital-Clipboard/clubhouse-workflow-action/issues"
   },
-  "homepage": "https://github.com/farmersdog/clubhouse-workflow-action#readme",
+  "homepage": "https://github.com/Digital-Clipboard/clubhouse-workflow-action#readme",
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1",
@@ -37,5 +37,9 @@
     "mocha": "^9.1.1",
     "sinon": "^11.1.2",
     "yargs": "^17.1.1"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": ">= 18"
   }
 }
